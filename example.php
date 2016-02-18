@@ -3,12 +3,12 @@
 
 namespace BrowserStack;
 
-use BrowserStack\BrowserStackLocal;
-use BrowserStack\BrowserStackLocalException;
+use BrowserStack\Local;
+use BrowserStack\LocalException;
 
 require_once('vendor/autoload.php');
 
-$me = new BrowserStackLocal();
+$me = new Local();
 $me->is_running();
 
 $args = array(

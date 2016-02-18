@@ -6,7 +6,7 @@ use Exception;
 
 error_reporting(1);
 
-class BrowserStackLocal {
+class Local {
 
   private $handle = NULL;
   private $pipes = array();
@@ -81,7 +81,7 @@ class BrowserStackLocal {
       $buffer = fgets($this->pipes[1]);
       
       if (preg_match("/\bError\b/i", $buffer,$match)) {
-        throw new BrowserStackLocalException($buffer);
+        throw new LocalException($buffer);
         proc_terminate($this->handle);
         return;
       }

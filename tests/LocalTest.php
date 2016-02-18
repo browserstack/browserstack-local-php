@@ -3,17 +3,17 @@
 
 namespace BrowserStack;
 
-use BrowserStack\BrowserStackLocal;
-use BrowserStack\BrowserStackLocalException;
+use BrowserStack\Local;
+use BrowserStack\LocalException;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-class BrowserStackLocalTest extends \PHPUnit_Framework_TestCase {
+class LocalTest extends \PHPUnit_Framework_TestCase {
 	
   private $bs_local;
   
   public function setUp(){
-    $this->bs_local = new BrowserStackLocal();
+    $this->bs_local = new Local();
   }
   
   public function test_verbose() {
@@ -66,10 +66,10 @@ class BrowserStackLocalTest extends \PHPUnit_Framework_TestCase {
 
   public function test_multiple_binary() {
     $this->bs_local->start();
-    $bs_local_2 = new BrowserStackLocal(getenv("BROWSERSTACK_KEY"));  
+    $bs_local_2 = new Local(getenv("BROWSERSTACK_KEY"));  
     try {
       $bs_local_2->start();
-    } catch (BrowserStackLocalException $ex) {
+    } catch (LocalException $ex) {
         $emessage = $ex->getMessage();
         $this->assertEquals(trim($emessage), '*** Error: Either another browserstack local client is running on your machine or some server is listening on port 45691');
         $bs_local_2->stop();

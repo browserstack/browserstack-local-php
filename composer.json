@@ -1,5 +1,5 @@
 {
-  "name": "browserstack/browserstacklocal",
+  "name": "browserstack/local",
   "description": "A PHP client for BrowserStackLocal",
   "keywords": ["browserstacklocal", "selenium", "php", "browserstack", "local"],
   "homepage": "https://github.com/browserstack/browserstack-php",
