@@ -12,10 +12,10 @@ $me = new Local();
 $me->is_running();
 
 $args = array(
-    "v" => 1,
-    "localIdentifier" => "randomString",
-    "onlyAutomate" => 1
-);
+        "v" => 1,
+        "localIdentifier" => "randomString",
+        "onlyAutomate" => 1
+        );
 
 $me->start($args);
 $me->is_running();
