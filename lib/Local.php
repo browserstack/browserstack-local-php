@@ -10,11 +10,16 @@ class Local {
 
     private $handle = NULL;
     private $pipes = array();
-
+    
     public function __construct() {
         $this->key = getenv("BROWSERSTACK_KEY");
-        if (!is_executable("BrowserStack/BrowserStackLocal"))
-            $this->prepare_binary();
+        $this->possible_binary_paths = array();
+        $temp = $this->server_home() . "/.browserstack";
+        array_push($this->possible_binary_paths, $temp);
+        $temp = getcwd();
+        array_push($this->possible_binary_paths, $temp);
+        $temp = sys_get_temp_dir(); 
+        array_push($this->possible_binary_paths, $temp);
     }
 
     public function __destruct() {
@@ -22,19 +27,40 @@ class Local {
     }
 
     public function is_running() {
-        $host = 'localhost';
-        $port = '45691';
-
-        $connection = fsockopen($host, $port);
+        $host = 'https://bs-local.com:45690/check';
+        $connection = fsockopen($host);
         if (is_resource($connection))
-            return True;
-        else
+            {   
+                echo "yes";
+                return True;}
+        else{
+            echo "NO";
             return False;
+        }
+    }
+
+    public function server_home() {
+        // getenv('HOME') isn't set on Windows and generates a Notice.
+        $home = getenv('HOME');
+        if (!empty($home)) {
+            // home should never end with a trailing slash.
+            $home = rtrim($home, '/');
+        }
+        elseif (!empty($_SERVER['HOMEDRIVE']) && !empty($_SERVER['HOMEPATH'])) {
+            // home on windows
+            $home = $_SERVER['HOMEDRIVE'] . $_SERVER['HOMEPATH'];
+            // If HOMEPATH is a root directory the path can end with a slash. Make sure
+            // that doesn't happen.
+            $home = rtrim($home, '\\/');
+        }
+        return empty($home) ? NULL : $home;
     }
 
     public function add_args($arg_key, $value = NULL) {
         if ($arg_key == "access_key")
             $this->key = $value;
+        elseif ($arg_key == "binaryPath")
+            $this->binary_path = $value;
         elseif ($arg_key == "v")
             $this->verbose_flag = "-v";
         elseif ($arg_key == "force")
@@ -67,6 +93,11 @@ class Local {
         foreach($arguments as $key => $value)
             $this->add_args($key,$value);
 
+        if(!$this->check_binary()) {
+            throw new LocalException("Unable to download binary");
+            return;
+        }
+        
         $descriptorspec = array(
                 0 => array("pipe", "r"),  // stdin is a pipe that the child will read from
                 1 => array("pipe", "w"),  // stdout is a pipe that the child will write to
@@ -74,19 +105,21 @@ class Local {
                 );
 
         $call = $this->command();
-
+        echo $call;
+        
         $this->handle = proc_open($call, $descriptorspec,$this->pipes);
 
         while(!feof($this->pipes[1])) {
             $buffer = fgets($this->pipes[1]);
+            echo $buffer;
 
             if (preg_match("/\bError\b/i", $buffer,$match)) {
                 throw new LocalException($buffer);
                 proc_terminate($this->handle);
-                return;
+                break;;
             }
             elseif (strcmp(rtrim($buffer),"Press Ctrl-C to exit") == 0)
-                return;
+                break;
 
             flush();    
         }
@@ -113,22 +146,48 @@ class Local {
         }
     }
 
-    public function prepare_binary($url) {
-        $url = $this->platform_url();
-        mkdir('BrowserStack', 0777, true);
-        file_put_contents("BrowserStack/BrowserStack.zip", fopen($url, 'r'));
-        $zip = new \ZipArchive;
-        if ($zip->open('BrowserStack/BrowserStack.zip') === TRUE) {
-            $zip->extractTo("BrowserStack/");
-            $zip->close();
-        } else {
+    public function download_binary($path,$url) {
+        if (!file_exists($path))
+            mkdir($path, 0777, true);
+        
+        file_put_contents($path . '/BrowserStack.zip', fopen($url, 'r'));
+            $zip = new \ZipArchive;
+            if ($zip->open($path . '/BrowserStack.zip') === TRUE) {
+                $zip->extractTo($path);
+                $zip->close();
+            } else {
+            }
+    }
 
+    public function check_binary() {
+        $url = $this->platform_url();
+        
+        if (isset($this->binary_path)) {
+            if (is_executable($this->binary_path))
+                return true;
+            else{
+                $this->download_binary(dirname($this->binary_path),$url);
+            }
+            if(is_executable($this->binary_path))
+                return true;
         }
-        chmod("BrowserStack/BrowserStackLocal", 0777);
+        else
+        {
+            $arrlength = count($this->possible_binary_paths);
+            for($x = 0; $x < $arrlength; $x++) {
+                $this->download_binary($this->possible_binary_paths[$x],$url);
+                $this->binary_path = $this->possible_binary_paths[$x] . "/BrowserStackLocal";
+                chmod($this->binary_path, 0777);
+                if(is_executable($this->binary_path))
+                    return true;
+            }
+          
+        }
+        return false;
     }
 
     public function command() {
-        $command = "./BrowserStack/BrowserStackLocal $this->folder_flag $this->key $this->folder_path $this->force_local_flag $this->local_identifier_flag $this->only_flag $this->only_automate_flag $this->proxy_host $this->proxy_port $this->proxy_user $this->proxy_pass $this->force_flag $this->verbose_flag $this->hosts";
+        $command = "$this->binary_path $this->folder_flag $this->key $this->folder_path $this->force_local_flag $this->local_identifier_flag $this->only_flag $this->only_automate_flag $this->proxy_host $this->proxy_port $this->proxy_user $this->proxy_pass $this->force_flag $this->verbose_flag $this->hosts";
         $command = preg_replace('/\s+/S', " ", $command);
         return $command;
     }
