@@ -18,25 +18,21 @@ class Local {
         array_push($this->possible_binary_paths, $temp);
         $temp = getcwd();
         array_push($this->possible_binary_paths, $temp);
-        $temp = sys_get_temp_dir(); 
+        $temp = sys_get_temp_dir();
         array_push($this->possible_binary_paths, $temp);
     }
 
     public function __destruct() {
-        echo "";
     }
 
     public function is_running() {
-        $host = 'https://bs-local.com:45690/check';
+        $host = 'http://bs-local.com:45691/check';
         $connection = fsockopen($host);
         if (is_resource($connection))
-            {   
-                echo "yes";
-                return True;}
-        else{
-            echo "NO";
+            return True;
+        else
             return False;
-        }
+        
     }
 
     public function server_home() {
@@ -105,14 +101,12 @@ class Local {
                 );
 
         $call = $this->command();
-        echo $call;
         
         $this->handle = proc_open($call, $descriptorspec,$this->pipes);
 
         while(!feof($this->pipes[1])) {
             $buffer = fgets($this->pipes[1]);
-            echo $buffer;
-
+            
             if (preg_match("/\bError\b/i", $buffer,$match)) {
                 throw new LocalException($buffer);
                 proc_terminate($this->handle);
@@ -181,7 +175,6 @@ class Local {
                 if(is_executable($this->binary_path))
                     return true;
             }
-          
         }
         return false;
     }

@@ -9,13 +9,12 @@ use BrowserStack\LocalException;
 require_once('vendor/autoload.php');
 
 $me = new Local();
-$me->is_running();
-
 $args = array(
         "v" => 1);
+$me->is_running();
 
 $me->start($args);
 sleep(45);
 echo $me->is_running();
-#$me->stop();
+$me->stop();
 echo $me->is_running();
