@@ -10,7 +10,8 @@ class Local {
 
     private $handle = NULL;
     private $pipes = array();
-    
+    private $loghandle = NULL;
+
     public function __construct() {
         $this->key = getenv("BROWSERSTACK_KEY");
         $this->possible_binary_paths = array();
@@ -18,6 +19,7 @@ class Local {
         array_push($this->possible_binary_paths, $temp);
         $temp = getcwd();
         array_push($this->possible_binary_paths, $temp);
+        $this->logfile = $temp . "/local.log";
         $temp = sys_get_temp_dir();
         array_push($this->possible_binary_paths, $temp);
     }
@@ -27,11 +29,15 @@ class Local {
 
     public function is_running() {
         $host = 'http://bs-local.com:45691/check';
-        $connection = fsockopen($host);
-        if (is_resource($connection))
-            return True;
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        $response = curl_exec($ch);
+        curl_close($ch);
+        echo $response;
+        if (strpos($response, 'running') !== false)
+            echo "True";
         else
-            return False;
+            echo "False";
         
     }
 
@@ -57,6 +63,8 @@ class Local {
             $this->key = $value;
         elseif ($arg_key == "binaryPath")
             $this->binary_path = $value;
+        elseif ($arg_key == "logfile")
+            $this->logfile = $value;
         elseif ($arg_key == "v")
             $this->verbose_flag = "-v";
         elseif ($arg_key == "force")
@@ -96,7 +104,7 @@ class Local {
         
         $descriptorspec = array(
                 0 => array("pipe", "r"),  // stdin is a pipe that the child will read from
-                1 => array("pipe", "w"),  // stdout is a pipe that the child will write to
+                1 => array("file", $this->logfile, "w"), // stdout is a pipe that the child will write to
                 2 => array("file", "/tmp/error-output.txt", "a") // stderr is a file to write to
                 );
 
@@ -104,9 +112,14 @@ class Local {
         
         $this->handle = proc_open($call, $descriptorspec,$this->pipes);
 
-        while(!feof($this->pipes[1])) {
-            $buffer = fgets($this->pipes[1]);
-            
+        $this->loghandle = fopen($this->logfile,"r");
+
+        while(!feof($this->loghandle)) {
+            print "hello";
+            $buffer = fgets($this->loghandle);
+            print $buffer;
+            #$a = file_get_contents($this->logfile);
+            #print $a;
             if (preg_match("/\bError\b/i", $buffer,$match)) {
                 throw new LocalException($buffer);
                 proc_terminate($this->handle);
@@ -120,6 +133,7 @@ class Local {
     }
 
     public function stop() {
+        fclose($this->loghandle);
         if (is_null($this->handle))
             return;
         else
@@ -180,7 +194,7 @@ class Local {
     }
 
     public function command() {
-        $command = "$this->binary_path $this->folder_flag $this->key $this->folder_path $this->force_local_flag $this->local_identifier_flag $this->only_flag $this->only_automate_flag $this->proxy_host $this->proxy_port $this->proxy_user $this->proxy_pass $this->force_flag $this->verbose_flag $this->hosts";
+        $command = "$this->binary_path -logFile $this->logfile $this->folder_flag $this->key $this->folder_path $this->force_local_flag $this->local_identifier_flag $this->only_flag $this->only_automate_flag $this->proxy_host $this->proxy_port $this->proxy_user $this->proxy_pass $this->force_flag $this->verbose_flag $this->hosts";
         $command = preg_replace('/\s+/S', " ", $command);
         return $command;
     }
