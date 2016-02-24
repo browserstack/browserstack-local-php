@@ -79,9 +79,11 @@ class Local {
         );
 
         $call = $this->command();
-        $this->handle = proc_open($call, $descriptorspec,$this->pipes);
+        system('echo "" > '. $this->logfile);
+        $this->handle = proc_open($call, $descriptorspec, $this->pipes);
         $this->loghandle = fopen($this->logfile,"r");
-        while (($buffer = fgets($this->loghandle, 4096)) !== false) {
+        while (true) {
+            $buffer = fgets($this->loghandle, 4096);
             if (preg_match("/\bError\b/i", $buffer,$match)) {
                 throw new LocalException($buffer);
                 proc_terminate($this->handle);
@@ -90,7 +92,8 @@ class Local {
             elseif (strcmp(rtrim($buffer),"Press Ctrl-C to exit") == 0)
                 break;
 
-            flush();    
+            flush();
+            sleep(1);
         }
     }
 
