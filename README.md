@@ -31,6 +31,7 @@ Test the installation by running a simple test file:
 
 ?>
 ```
+Check out example.php in the main repositary. 
 
 ## API
 

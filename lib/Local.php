@@ -79,13 +79,9 @@ class Local {
         );
 
         $call = $this->command();
-        
         $this->handle = proc_open($call, $descriptorspec,$this->pipes);
-        
         $this->loghandle = fopen($this->logfile,"r");
-
-        while(!feof($this->loghandle)) {
-            $buffer = fgets($this->loghandle);
+        while (($buffer = fgets($this->loghandle, 4096)) !== false) {
             if (preg_match("/\bError\b/i", $buffer,$match)) {
                 throw new LocalException($buffer);
                 proc_terminate($this->handle);
