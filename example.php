@@ -14,7 +14,7 @@ $args = array(
 $me->is_running();
 
 $me->start($args);
-sleep(45);
 echo $me->is_running();
-$me->stop();
+sleep(50);
+#$me->stop();
 echo $me->is_running();

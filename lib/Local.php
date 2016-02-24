@@ -10,8 +10,7 @@ class Local {
 
     private $handle = NULL;
     private $pipes = array();
-    private $loghandle = NULL;
-
+    
     public function __construct() {
         $this->key = getenv("BROWSERSTACK_KEY");
         $this->possible_binary_paths = array();
@@ -38,7 +37,6 @@ class Local {
             echo "True";
         else
             echo "False";
-        
     }
 
     public function server_home() {
@@ -104,7 +102,7 @@ class Local {
         
         $descriptorspec = array(
                 0 => array("pipe", "r"),  // stdin is a pipe that the child will read from
-                1 => array("file", $this->logfile, "w"), // stdout is a pipe that the child will write to
+                1 => array("pipe", "w"), // stdout is a pipe that the child will write to
                 2 => array("file", "/tmp/error-output.txt", "a") // stderr is a file to write to
                 );
 
@@ -112,18 +110,12 @@ class Local {
         
         $this->handle = proc_open($call, $descriptorspec,$this->pipes);
 
-        $this->loghandle = fopen($this->logfile,"r");
-
-        while(!feof($this->loghandle)) {
-            print "hello";
-            $buffer = fgets($this->loghandle);
-            print $buffer;
-            #$a = file_get_contents($this->logfile);
-            #print $a;
+        while(!feof($this->pipes[1])) {
+            $buffer = fgets($this->pipes[1]);
             if (preg_match("/\bError\b/i", $buffer,$match)) {
                 throw new LocalException($buffer);
                 proc_terminate($this->handle);
-                break;;
+                break;
             }
             elseif (strcmp(rtrim($buffer),"Press Ctrl-C to exit") == 0)
                 break;
@@ -133,7 +125,6 @@ class Local {
     }
 
     public function stop() {
-        fclose($this->loghandle);
         if (is_null($this->handle))
             return;
         else
@@ -194,9 +185,10 @@ class Local {
     }
 
     public function command() {
-        $command = "$this->binary_path -logFile $this->logfile $this->folder_flag $this->key $this->folder_path $this->force_local_flag $this->local_identifier_flag $this->only_flag $this->only_automate_flag $this->proxy_host $this->proxy_port $this->proxy_user $this->proxy_pass $this->force_flag $this->verbose_flag $this->hosts";
+        $command = "$this->binary_path $this->folder_flag $this->key $this->folder_path $this->force_local_flag $this->locsal_identifier_flag $this->only_flag $this->only_automate_flag $this->proxy_host $this->proxy_port $this->proxy_user $this->proxy_pass $this->force_flag $this->verbose_flag $this->hosts";
         $command = preg_replace('/\s+/S', " ", $command);
         return $command;
+        #-logFile $this->logfile
     }
 }
 
