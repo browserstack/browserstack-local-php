@@ -61,3 +61,12 @@ Test the installation by running a simple test file:
 * `hosts`: List of hosts and ports where Local must be enabled for eg. localhost,3000,1,localhost,3001,0
 * `logfile`: Path to file where Local logs be saved to
 * `binarypath`: Optional path to Local binary
+
+## Test
+
+Testing is possible using [PHPUnit](https://phpunit.de/).
+
+To run the tests, run the command:
+  `phpunit tests/LocalTest.php`
+
+

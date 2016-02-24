@@ -31,6 +31,11 @@ class LocalTest extends \PHPUnit_Framework_TestCase {
         $this->bs_local->add_args("force");
     }
 
+    public function test_set_local_identifier() {
+        $this->bs_local->add_args("localIdentifier", "randomString");
+        $this->assertContains('-localIdentifier randomString',$this->bs_local->command());
+    }
+
     public function test_enable_only() {
         $this->bs_local->add_args("only");
         $this->assertContains('-only',$this->bs_local->command());

@@ -107,7 +107,6 @@ class Local {
         $command = preg_replace('/\s+/S', " ", $command);
         print($command);
         return $command;
-        #-logFile $this->logfile
     }
 }
 
