@@ -46,11 +46,6 @@ class LocalTest extends \PHPUnit_Framework_TestCase {
         $this->assertContains('-forcelocal',$this->bs_local->command());
     }
 
-    public function test_set_local_identifier() {
-        $this->bs_local->add_args("localIdentifier", "randomString");
-        $this->assertContains('-localIdentifier randomString',$this->bs_local->command());
-    }
-
     public function test_set_proxy() {
         $this->bs_local->add_args("proxyHost", "localhost");
         $this->bs_local->add_args("proxyPort", 8080);
@@ -82,12 +77,12 @@ class LocalTest extends \PHPUnit_Framework_TestCase {
         sleep(2);
     }
 
-    public function test_is_running() {
-        $this->assertFalse($this->bs_local->is_running());
+    public function test_isRunning() {
+        $this->assertFalse($this->bs_local->isRunning());
         $this->bs_local->start();
-        $this->assertTrue($this->bs_local->is_running());
+        $this->assertTrue($this->bs_local->isRunning());
         $this->bs_local->stop();
         sleep(2);
-        $this->assertFalse($this->bs_local->is_running());
+        $this->assertFalse($this->bs_local->isRunning());
     }
 }

@@ -26,17 +26,12 @@ class Local {
     public function __destruct() {
     }
 
-    public function is_running() {
-        $host = 'http://bs-local.com:45691/check';
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        $response = curl_exec($ch);
-        curl_close($ch);
-        echo $response;
-        if (strpos($response, 'running') !== false)
-            echo "True";
-        else
-            echo "False";
+    public function isRunning() {
+        if ($this->handle == NULL)
+            return False;
+
+        $status = proc_get_status($this->handle);
+        return $status["running"];
     }
 
     public function server_home() {
@@ -57,7 +52,7 @@ class Local {
     }
 
     public function add_args($arg_key, $value = NULL) {
-        if ($arg_key == "access_key")
+        if ($arg_key == "key")
             $this->key = $value;
         elseif ($arg_key == "binaryPath")
             $this->binary_path = $value;
@@ -185,7 +180,7 @@ class Local {
     }
 
     public function command() {
-        $command = "$this->binary_path $this->folder_flag $this->key $this->folder_path $this->force_local_flag $this->locsal_identifier_flag $this->only_flag $this->only_automate_flag $this->proxy_host $this->proxy_port $this->proxy_user $this->proxy_pass $this->force_flag $this->verbose_flag $this->hosts";
+        $command = "$this->binary_path $this->folder_flag $this->key $this->folder_path $this->force_local_flag $this->local_identifier_flag $this->only_flag $this->only_automate_flag $this->proxy_host $this->proxy_port $this->proxy_user $this->proxy_pass $this->force_flag $this->verbose_flag $this->hosts";
         $command = preg_replace('/\s+/S', " ", $command);
         return $command;
         #-logFile $this->logfile
