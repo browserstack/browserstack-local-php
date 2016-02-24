@@ -27,7 +27,7 @@ class Local {
     }
 
     public function isRunning() {
-        if ($this->handle == NULL)
+        if (is_null($this->handle))
             return False;
 
         $status = proc_get_status($this->handle);
