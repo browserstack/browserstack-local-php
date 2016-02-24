@@ -67,6 +67,6 @@ Test the installation by running a simple test file:
 Testing is possible using [PHPUnit](https://phpunit.de/).
 
 To run the tests, run the command:
-  `phpunit tests/LocalTest.php
+  `phpunit tests/LocalTest.php`
 
 
