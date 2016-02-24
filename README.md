@@ -10,7 +10,27 @@ If you don't already use Composer, you can download the `composer.phar` binary:
 
 Then install the library:
 
-    php composer.phar require browserstack/local
+    `php composer.phar require browserstack/local:dev-master`
+
+Install all depenedencies:
+    `php composer.phar install`
+
+Test the installation by running a simple test file:
+
+```
+<?php
+  require_once "vendor/autoload.php";
+  use BrowserStack\Local;
+
+  $me = new Local();
+  $args = array("v" => 1);
+  print $me->isRunning();
+  $me->start($args);
+  print $me->isRunning();
+  $me->stop();
+
+?>
+```
 
 ## API
 
@@ -41,5 +61,3 @@ Then install the library:
 * `hosts`: List of hosts and ports where Local must be enabled for eg. localhost,3000,1,localhost,3001,0
 * `logfile`: Path to file where Local logs be saved to
 * `binarypath`: Optional path to Local binary
-
-## API
