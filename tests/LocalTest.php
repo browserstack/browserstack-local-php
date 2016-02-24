@@ -4,6 +4,7 @@
 namespace BrowserStack;
 
 use BrowserStack\Local;
+use BrowserStack\LocalBinary;
 use BrowserStack\LocalException;
 
 require_once __DIR__ . '/../vendor/autoload.php';

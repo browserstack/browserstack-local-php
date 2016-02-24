@@ -23,7 +23,6 @@ class LocalBinary {
     public function binary_path() {
         $dest_parent_dir = $this->get_available_dirs();
         $binary_path = $dest_parent_dir. "/BrowserStackLocal";
-        print($binary_path);
         if(file_exists($binary_path)){
             return $binary_path;
         }
