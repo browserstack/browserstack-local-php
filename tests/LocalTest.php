@@ -72,7 +72,7 @@ class LocalTest extends \PHPUnit_Framework_TestCase {
             $bs_local_2->start();
         } catch (LocalException $ex) {
             $emessage = $ex->getMessage();
-            $this->assertEquals(trim($emessage), '*** Error: Either another browserstack local client is running on your machine or some server is listening on port 45691');
+            $this->assertEquals(trim($emessage), 'Error: Either another browserstack local client is running on your machine or some server is listening on port 45691');
             $bs_local_2->stop();
             $this->bs_local->stop();
             sleep(2);

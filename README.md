@@ -15,23 +15,7 @@ Then install the library:
 Install all depenedencies:
     `php composer.phar install`
 
-Test the installation by running a simple test file:
-
-```
-<?php
-  require_once "vendor/autoload.php";
-  use BrowserStack\Local;
-
-  $me = new Local();
-  $args = array("v" => 1);
-  print $me->isRunning();
-  $me->start($args);
-  print $me->isRunning();
-  $me->stop();
-
-?>
-```
-Check out example.php in the main repositary. 
+Test the installation by running a simple test file, check out example.php in the main repository. 
 
 ## API
 

@@ -83,16 +83,16 @@ class Local {
         $this->handle = proc_open($call, $descriptorspec, $this->pipes);
         $this->loghandle = fopen($this->logfile,"r");
         while (true) {
-            $buffer = fgets($this->loghandle, 4096);
-            if (preg_match("/\bError\b/i", $buffer,$match)) {
-                throw new LocalException($buffer);
+            $buffer = fread($this->loghandle, 1024);
+            if (preg_match("/Error:[^\n]+/i", $buffer, $match)) {
+                throw new LocalException($match[0]);
                 proc_terminate($this->handle);
                 break;
             }
-            elseif (strcmp(rtrim($buffer),"Press Ctrl-C to exit") == 0)
+            elseif (preg_match("/\bPress Ctrl-C to exit\b/i", $buffer, $match))
                 break;
 
-            flush();
+            //flush();
             sleep(1);
         }
     }
