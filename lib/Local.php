@@ -169,8 +169,10 @@ class Local {
         {
             $arrlength = count($this->possible_binary_paths);
             for($x = 0; $x < $arrlength; $x++) {
-                $this->download_binary($this->possible_binary_paths[$x],$url);
                 $this->binary_path = $this->possible_binary_paths[$x] . "/BrowserStackLocal";
+                if(is_executable($this->binary_path))
+                    return true;
+                $this->download_binary($this->possible_binary_paths[$x],$url);
                 chmod($this->binary_path, 0777);
                 if(is_executable($this->binary_path))
                     return true;
@@ -182,7 +184,7 @@ class Local {
     public function command() {
         $command = "$this->binary_path -logFile $this->logfile $this->folder_flag $this->key $this->folder_path $this->force_local_flag $this->local_identifier_flag $this->only_flag $this->only_automate_flag $this->proxy_host $this->proxy_port $this->proxy_user $this->proxy_pass $this->force_flag $this->verbose_flag $this->hosts";
         $command = preg_replace('/\s+/S', " ", $command);
-        return $command;   
+        return $command;
     }
 }
 
