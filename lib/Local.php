@@ -10,6 +10,7 @@ class Local {
 
     private $handle = NULL;
     private $pipes = array();
+    private $loghandle = NULL;
     
     public function __construct() {
         $this->key = getenv("BROWSERSTACK_KEY");
@@ -104,9 +105,11 @@ class Local {
         $call = $this->command();
         
         $this->handle = proc_open($call, $descriptorspec,$this->pipes);
+        
+        $this->loghandle = fopen($this->logfile,"r");
 
-        while(!feof($this->pipes[1])) {
-            $buffer = fgets($this->pipes[1]);
+        while(!feof($this->loghandle)) {
+            $buffer = fgets($this->loghandle);
             if (preg_match("/\bError\b/i", $buffer,$match)) {
                 throw new LocalException($buffer);
                 proc_terminate($this->handle);
@@ -120,6 +123,7 @@ class Local {
     }
 
     public function stop() {
+        fclose($this->loghandle);
         if (is_null($this->handle))
             return;
         else
