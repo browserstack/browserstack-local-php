@@ -15,7 +15,7 @@ class Local {
   private $loghandle = NULL;
   
   public function __construct() {
-    $this->key = getenv("BROWSERSTACK_KEY");
+    $this->key = getenv("BROWSERSTACK_ACCESS_KEY");
     $this->logfile = getcwd() . "/local.log";
   }
 
