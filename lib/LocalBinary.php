@@ -50,14 +50,14 @@ class LocalBinary {
 
   private function platform_url(){
     if (PHP_OS == "Darwin")
-      return "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal-darwin-x64";
+      return 'https://s3.amazonaws.com/bs-automate-prod/local/BrowserStackLocal-darwin-x64';
     else if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')
-      return "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal.exe";
+      return 'https://s3.amazonaws.com/bs-automate-prod/local/BrowserStackLocal-win32.exe';
     if ((strtoupper(PHP_OS)) == "LINUX") {
       if (PHP_INT_SIZE * 8 == 64)
-        return "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal-linux-x64";
+        return 'https://s3.amazonaws.com/bs-automate-prod/local/BrowserStackLocal-linux-x64';
       else
-        return "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal-linux-ia32";
+        return 'https://s3.amazonaws.com/bs-automate-prod/local/BrowserStackLocal-linux-ia32';
     }
   }
 
