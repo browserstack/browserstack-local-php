@@ -1,5 +1,4 @@
 <?php
-// An example of using php-browserstacklocal.
 
 namespace BrowserStack;
 

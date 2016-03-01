@@ -113,7 +113,8 @@ class Local {
 
       proc_terminate($this->handle);
       proc_close($this->handle);
-      posix_kill($this->pid, SIGTERM);
+      if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN')
+        exec('kill -9 ' . $this->pid);
       while($this->isRunning())
         sleep(1);
     }
