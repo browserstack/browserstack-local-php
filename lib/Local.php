@@ -103,10 +103,12 @@ class Local {
     fclose($this->loghandle);
     if (is_null($this->handle))
       return;
-    else
+    else {
       proc_terminate($this->handle);
-    while($this->isRunning())
-      sleep(1);
+      while($this->isRunning())
+        sleep(1);
+      sleep(5);
+    }
   }
 
   public function command() {
