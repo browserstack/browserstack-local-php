@@ -73,9 +73,9 @@ class Local {
     $this->binary_path = $this->binary->binary_path();
     
     $descriptorspec = array(
-      0 => array("pipe", "r"),
-      1 => array("pipe", "w"),
-      2 => array("pipe", "w")
+      // 0 => array("pipe", "r"),
+      // 1 => array("pipe", "w"),
+      // 2 => array("pipe", "w")
     );
 
     $call = $this->command();
@@ -107,14 +107,14 @@ class Local {
     if (is_null($this->handle))
       return;
     else {
-      fclose($this->pipes[0]);
-      fclose($this->pipes[1]);
-      fclose($this->pipes[2]);
+      // fclose($this->pipes[0]);
+      // fclose($this->pipes[1]);
+      // fclose($this->pipes[2]);
 
+      if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN')
+        exec('kill -2 ' . $this->pid);
       proc_terminate($this->handle);
       proc_close($this->handle);
-      if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN')
-        exec('kill -9 ' . $this->pid);
       while($this->isRunning())
         sleep(1);
     }
