@@ -105,9 +105,9 @@ class Local {
       return;
     else {
       proc_terminate($this->handle);
+      proc_close($this->handle);
       while($this->isRunning())
         sleep(1);
-      sleep(5);
     }
   }
 
