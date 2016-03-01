@@ -48,17 +48,16 @@ class LocalBinary {
     return empty($home) ? NULL : $home;
   }
 
-  private function platform_url()
-  {
+  private function platform_url(){
     if (PHP_OS == "Darwin")
-      return "https://www.browserstack.com/browserstack-local/BrowserStackLocal-darwin-x64.zip";
+      return "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal-darwin-x64";
     else if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')
-      return "https://www.browserstack.com/browserstack-local/BrowserStackLocal-win32.zip";
+      return "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal.exe";
     if ((strtoupper(PHP_OS)) == "LINUX") {
       if (PHP_INT_SIZE * 8 == 64)
-        return "https://www.browserstack.com/browserstack-local/BrowserStackLocal-linux-x64.zip";
+        return "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal-linux-x64";
       else
-        return "https://www.browserstack.com/browserstack-local/BrowserStackLocal-linux-ia32.zip";
+        return "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal-linux-ia32";
     }
   }
 
@@ -67,13 +66,7 @@ class LocalBinary {
     if (!file_exists($path))
       mkdir($path, 0777, true);
     
-    file_put_contents($path . '/BrowserStack.zip', fopen($url, 'r'));
-    $zip = new \ZipArchive;
-    if ($zip->open($path . '/BrowserStack.zip') === TRUE) {
-      $zip->extractTo($path);
-      $zip->close();
-    } 
-    else {}
+    file_put_contents($path . '/BrowserStackLocal', fopen($url, 'r'));
     return $path . "/BrowserStackLocal";
   }
 
