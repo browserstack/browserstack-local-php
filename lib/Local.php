@@ -113,7 +113,7 @@ class Local {
 
       proc_terminate($this->handle);
       proc_close($this->handle);
-      posix_kill($this->pid, SIGKILL);
+      posix_kill($this->pid, SIGTERM);
       while($this->isRunning())
         sleep(1);
     }
