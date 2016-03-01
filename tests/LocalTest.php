@@ -69,6 +69,12 @@ class LocalTest extends \PHPUnit_Framework_TestCase {
     $this->assertContains('localhost,8080,0',$this->bs_local->command());
   }
 
+  public function test_checkPid() {
+    $this->assertFalse($this->bs_local->isRunning());
+    $this->bs_local->start(array('v' => true));
+    $this->assertTrue($this->bs_local->pid > 0);
+  }
+
   public function test_isRunning() {
     $this->assertFalse($this->bs_local->isRunning());
     $this->bs_local->start(array('v' => true));

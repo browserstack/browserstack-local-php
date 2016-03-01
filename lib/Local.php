@@ -73,14 +73,17 @@ class Local {
     $this->binary_path = $this->binary->binary_path();
     
     $descriptorspec = array(
-      0 => array("pipe", "r"),  // stdin is a pipe that the child will read from
-      1 => array("pipe", "w"), // stdout is a pipe that the child will write to
-      2 => array("file", "/tmp/error-output.txt", "a") // stderr is a file to write to
+      0 => array("pipe", "r"),
+      1 => array("pipe", "w"),
+      2 => array("pipe", "w")
     );
 
     $call = $this->command();
     system('echo "" > '. $this->logfile);
     $this->handle = proc_open($call, $descriptorspec, $this->pipes);
+    $status = proc_get_status($this->handle);
+    $this->pid = $status['pid'];
+
     $this->loghandle = fopen($this->logfile,"r");
     while (true) {
       $buffer = fread($this->loghandle, 1024);
@@ -104,8 +107,13 @@ class Local {
     if (is_null($this->handle))
       return;
     else {
+      fclose($this->pipes[0]);
+      fclose($this->pipes[1]);
+      fclose($this->pipes[2]);
+
       proc_terminate($this->handle);
       proc_close($this->handle);
+      posix_kill($this->pid, SIGKILL);
       while($this->isRunning())
         sleep(1);
     }
