@@ -103,6 +103,8 @@ class Local {
       return;
     else
       proc_terminate($this->handle);
+    while($this->isRunning())
+      sleep(1);
   }
 
   public function command() {
