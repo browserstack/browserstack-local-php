@@ -13,7 +13,7 @@ class Local {
   private $handle = NULL;
   private $pipes = array();
   private $loghandle = NULL;
-  private $pid = NULL;
+  public $pid = NULL;
   
   public function __construct() {
     $this->key = getenv("BROWSERSTACK_ACCESS_KEY");
