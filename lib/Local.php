@@ -86,10 +86,11 @@ class Local {
       $buffer = fread($this->loghandle, 1024);
       if (preg_match("/Error:[^\n]+/i", $buffer, $match)) {
         throw new LocalException($match[0]);
-        proc_terminate($this->handle);
+        $this->stop();
         break;
       }
       elseif (preg_match("/\bPress Ctrl-C to exit\b/i", $buffer, $match))
+        fclose($this->loghandle);
         break;
 
       //flush();
