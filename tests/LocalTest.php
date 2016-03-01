@@ -19,6 +19,7 @@ class LocalTest extends \PHPUnit_Framework_TestCase {
 
   public function tearDown(){
     $this->bs_local->stop();
+    sleep(5);
   }
 
   public function test_verbose() {
