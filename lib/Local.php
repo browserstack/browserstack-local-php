@@ -85,13 +85,14 @@ class Local {
     while (true) {
       $buffer = fread($this->loghandle, 1024);
       if (preg_match("/Error:[^\n]+/i", $buffer, $match)) {
-        throw new LocalException($match[0]);
         $this->stop();
+        throw new LocalException($match[0]);
         break;
       }
-      elseif (preg_match("/\bPress Ctrl-C to exit\b/i", $buffer, $match))
+      elseif (preg_match("/\bPress Ctrl-C to exit\b/i", $buffer, $match)){
         fclose($this->loghandle);
         break;
+      }
 
       //flush();
       sleep(1);

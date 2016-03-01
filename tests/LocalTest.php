@@ -17,6 +17,10 @@ class LocalTest extends \PHPUnit_Framework_TestCase {
     $this->bs_local = new Local();
   }
 
+  public function tearDown(){
+    $this->bs_local->stop();
+  }
+
   public function test_verbose() {
     $this->bs_local->add_args('v');
     $this->assertContains('-v',$this->bs_local->command());
@@ -70,25 +74,17 @@ class LocalTest extends \PHPUnit_Framework_TestCase {
     $bs_local_2 = new Local();  
     try {
       $bs_local_2->start(array('v' => true));
+      $this->fail("Expected Exception has not been raised.");
     } catch (LocalException $ex) {
       $emessage = $ex->getMessage();
       $this->assertEquals(trim($emessage), 'Error: Either another browserstack local client is running on your machine or some server is listening on port 45691');
-      $bs_local_2->stop();
-      $this->bs_local->stop();
-      sleep(2);
       return;
     }
-    $this->fail("Expected Exception has not been raised.");
-    $this->bs_local->stop();
-    sleep(2);
   }
 
   public function test_isRunning() {
     $this->assertFalse($this->bs_local->isRunning());
     $this->bs_local->start(array('v' => true));
     $this->assertTrue($this->bs_local->isRunning());
-    $this->bs_local->stop();
-    sleep(2);
-    $this->assertFalse($this->bs_local->isRunning());
   }
 }
