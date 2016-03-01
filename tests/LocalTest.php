@@ -69,18 +69,18 @@ class LocalTest extends \PHPUnit_Framework_TestCase {
     $this->assertContains('localhost,8080,0',$this->bs_local->command());
   }
 
-  public function test_multiple_binary() {
-    $this->bs_local->start(array('v' => true));
-    $bs_local_2 = new Local();  
-    try {
-      $bs_local_2->start(array('v' => true));
-      $this->fail("Expected Exception has not been raised.");
-    } catch (LocalException $ex) {
-      $emessage = $ex->getMessage();
-      $this->assertEquals(trim($emessage), 'Error: Either another browserstack local client is running on your machine or some server is listening on port 45691');
-      return;
-    }
-  }
+  // public function test_multiple_binary() {
+  //   $this->bs_local->start(array('v' => true));
+  //   $bs_local_2 = new Local();  
+  //   try {
+  //     $bs_local_2->start(array('v' => true));
+  //     $this->fail("Expected Exception has not been raised.");
+  //   } catch (LocalException $ex) {
+  //     $emessage = $ex->getMessage();
+  //     $this->assertEquals(trim($emessage), 'Error: Either another browserstack local client is running on your machine or some server is listening on port 45691');
+  //     return;
+  //   }
+  // }
 
   public function test_isRunning() {
     $this->assertFalse($this->bs_local->isRunning());
