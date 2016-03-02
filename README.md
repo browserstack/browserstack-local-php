@@ -1,5 +1,7 @@
 # browserstack-local-php
 
+[![Build Status](https://travis-ci.org/browserstack/browserstack-local-php.svg?branch=master)](https://travis-ci.org/browserstack/browserstack-local-php)
+
 ## Setup
 
 Installation is possible using [Composer](https://getcomposer.org/).
