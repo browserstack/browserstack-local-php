@@ -50,14 +50,14 @@ class LocalBinary {
 
   private function platform_url(){
     if (PHP_OS == "Darwin")
-      return "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal-darwin-x64";
+      return 'https://s3.amazonaws.com/bs-automate-prod/local/BrowserStackLocal-darwin-x64';
     else if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')
-      return "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal.exe";
+      return 'https://s3.amazonaws.com/bs-automate-prod/local/BrowserStackLocal-win32.exe';
     if ((strtoupper(PHP_OS)) == "LINUX") {
       if (PHP_INT_SIZE * 8 == 64)
-        return "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal-linux-x64";
+        return 'https://s3.amazonaws.com/bs-automate-prod/local/BrowserStackLocal-linux-x64';
       else
-        return "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal-linux-ia32";
+        return 'https://s3.amazonaws.com/bs-automate-prod/local/BrowserStackLocal-linux-ia32';
     }
   }
 
@@ -65,8 +65,18 @@ class LocalBinary {
     $url = $this->platform_url();
     if (!file_exists($path))
       mkdir($path, 0777, true);
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    $data = curl_exec ($ch);
+    curl_close ($ch);
+
+    $file = fopen($path . '/BrowserStackLocal', "w+");
+    fputs($file, $data);
+    fclose($file);
     
-    file_put_contents($path . '/BrowserStackLocal', fopen($url, 'r'));
+    chmod($path . '/BrowserStackLocal', 0755);
     return $path . "/BrowserStackLocal";
   }
 
@@ -74,8 +84,7 @@ class LocalBinary {
     $arrlength = count($this->possible_binary_paths);
     for($x = 0; $x < $arrlength; $x++) {
       $path = $this->possible_binary_paths[$x];
-      $localpath = $path . "/BrowserStackLocal";
-      if(file_exists($localpath) || $this->make_path($path))
+      if(file_exists($path) || $this->make_path($path))
         return $path;
     }
     throw new LocalException("Error trying to download BrowserStack Local binary");

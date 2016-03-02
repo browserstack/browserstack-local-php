@@ -1,5 +1,7 @@
 # browserstack-local-php
 
+[![Build Status](https://travis-ci.org/browserstack/browserstack-local-php.svg?branch=master)](https://travis-ci.org/browserstack/browserstack-local-php)
+
 ## Setup
 
 Installation is possible using [Composer](https://getcomposer.org/).
@@ -52,6 +54,6 @@ Test the installation by running a simple test file, check out example.php in th
 Testing is possible using [PHPUnit](https://phpunit.de/).
 
 To run the tests, run the command:
-  `phpunit tests/LocalTest.php`
+  `phpunit`
 
 

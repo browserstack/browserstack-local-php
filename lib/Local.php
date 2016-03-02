@@ -13,6 +13,7 @@ class Local {
   private $handle = NULL;
   private $pipes = array();
   private $loghandle = NULL;
+  public $pid = NULL;
   
   public function __construct() {
     $this->key = getenv("BROWSERSTACK_ACCESS_KEY");
@@ -27,7 +28,7 @@ class Local {
       return False;
 
     $status = proc_get_status($this->handle);
-    return $status["running"];
+    return is_null($status["running"]) ? false : $status["running"];
   }
 
   public function add_args($arg_key, $value = NULL) {
@@ -73,24 +74,29 @@ class Local {
     $this->binary_path = $this->binary->binary_path();
     
     $descriptorspec = array(
-      0 => array("pipe", "r"),  // stdin is a pipe that the child will read from
-      1 => array("pipe", "w"), // stdout is a pipe that the child will write to
-      2 => array("file", "/tmp/error-output.txt", "a") // stderr is a file to write to
+      0 => array("pipe", "r"),
+      1 => array("pipe", "w"),
+      2 => array("pipe", "w")
     );
 
     $call = $this->command();
     system('echo "" > '. $this->logfile);
     $this->handle = proc_open($call, $descriptorspec, $this->pipes);
+    $status = proc_get_status($this->handle);
+    $this->pid = $status['pid'];
+
     $this->loghandle = fopen($this->logfile,"r");
     while (true) {
       $buffer = fread($this->loghandle, 1024);
       if (preg_match("/Error:[^\n]+/i", $buffer, $match)) {
+        $this->stop();
         throw new LocalException($match[0]);
-        proc_terminate($this->handle);
         break;
       }
-      elseif (preg_match("/\bPress Ctrl-C to exit\b/i", $buffer, $match))
+      elseif (preg_match("/\bPress Ctrl-C to exit\b/i", $buffer, $match)){
+        fclose($this->loghandle);
         break;
+      }
 
       //flush();
       sleep(1);
@@ -101,12 +107,28 @@ class Local {
     fclose($this->loghandle);
     if (is_null($this->handle))
       return;
-    else
+    else {
+      while(fgets($this->pipes[0]));
+      fclose($this->pipes[0]);
+      fclose($this->pipes[1]);
+      fclose($this->pipes[2]);
+
+      if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN')
+        exec('kill -15 ' . $this->pid);
+      
       proc_terminate($this->handle);
+      while($this->isRunning())
+        sleep(1);
+    }
   }
 
   public function command() {
-    $command = "$this->binary_path -logFile $this->logfile $this->folder_flag $this->key $this->folder_path $this->force_local_flag $this->local_identifier_flag $this->only_flag $this->only_automate_flag $this->proxy_host $this->proxy_port $this->proxy_user $this->proxy_pass $this->force_flag $this->verbose_flag $this->hosts";
+    $exec = "exec";
+    // TODO to test on windows
+    if(strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')
+      $exec = "call";
+
+    $command = "$exec $this->binary_path -logFile $this->logfile $this->folder_flag $this->key $this->folder_path $this->force_local_flag $this->local_identifier_flag $this->only_flag $this->only_automate_flag $this->proxy_host $this->proxy_port $this->proxy_user $this->proxy_pass $this->force_flag $this->verbose_flag $this->hosts";
     $command = preg_replace('/\s+/S', " ", $command);
     return $command;
   }
