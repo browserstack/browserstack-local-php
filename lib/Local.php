@@ -28,6 +28,7 @@ class Local {
       return False;
 
     $status = proc_get_status($this->handle);
+    print_r($status);
     return !is_null($status["running"]);
   }
 
