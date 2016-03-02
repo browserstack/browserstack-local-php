@@ -121,6 +121,7 @@ class Local {
       $status = proc_get_status($this->handle);
       echo "Stopping";
       print_r($status);
+      echo exec('ps aux| grep BrowserStackLocal');
       proc_close($this->handle);
       while($this->isRunning())
         sleep(1);
