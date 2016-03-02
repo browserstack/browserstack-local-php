@@ -113,10 +113,13 @@ class Local {
       fclose($this->pipes[1]);
       fclose($this->pipes[2]);
 
-      proc_terminate($this->handle);
-      proc_close($this->handle);
+      if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN')
+        exec('kill -15 ' . $this->pid);
+      else
+        proc_terminate($this->handle);
       while($this->isRunning())
         sleep(1);
+      proc_close($this->handle);
     }
   }
 
