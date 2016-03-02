@@ -113,10 +113,11 @@ class Local {
       fclose($this->pipes[1]);
       fclose($this->pipes[2]);
 
+      echo 'kill -15 ' . $this->pid;
       if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN')
         exec('kill -15 ' . $this->pid);
-
-      proc_terminate($this->handle);
+      else
+        proc_terminate($this->handle);
       $status = proc_get_status($this->handle);
       echo "Stopping";
       print_r($status);
