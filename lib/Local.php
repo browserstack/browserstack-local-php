@@ -113,11 +113,19 @@ class Local {
       fclose($this->pipes[1]);
       fclose($this->pipes[2]);
 
+      echo `ps aux| grep BrowserStackLocal`;
+      echo `lsof -i:45691`;
+      echo $this->pid;
+
       if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN')
         exec('kill -15 ' . $this->pid);
       
       proc_terminate($this->handle);
       //proc_close($this->handle);
+      echo `ps aux| grep BrowserStackLocal`;
+      echo `lsof -i:45691`;
+      echo $this->pid;
+
       while($this->isRunning())
         sleep(1);
     }
