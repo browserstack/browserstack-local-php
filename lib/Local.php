@@ -115,8 +115,8 @@ class Local {
 
       if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN')
         exec('kill -2 ' . $this->pid);
-      else 
-        proc_terminate($this->handle);
+
+      proc_terminate($this->handle, 2);
       $status = proc_get_status($this->handle);
       echo "Stopping";
       print_r($status);
