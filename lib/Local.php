@@ -120,7 +120,7 @@ class Local {
       $status = proc_get_status($this->handle);
       echo "Stopping";
       print_r($status);
-      //proc_close($this->handle);
+      proc_close($this->handle);
       // $status = proc_get_status($this->handle);
       // echo "Stopped";
       // print_r($status);
