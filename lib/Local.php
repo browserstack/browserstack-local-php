@@ -113,15 +113,7 @@ class Local {
       fclose($this->pipes[1]);
       fclose($this->pipes[2]);
 
-      echo 'kill -15 ' . $this->pid;
-      if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN')
-        exec('kill -15 ' . $this->pid);
-      else
-        proc_terminate($this->handle);
-      $status = proc_get_status($this->handle);
-      echo "Stopping";
-      print_r($status);
-      echo exec('ps aux| grep BrowserStackLocal');
+      proc_terminate($this->handle);
       proc_close($this->handle);
       while($this->isRunning())
         sleep(1);
