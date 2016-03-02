@@ -115,11 +115,11 @@ class Local {
 
       if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN')
         exec('kill -15 ' . $this->pid);
-      else
-        proc_terminate($this->handle);
+      
+      proc_terminate($this->handle);
+      proc_close($this->handle);
       while($this->isRunning())
         sleep(1);
-      proc_close($this->handle);
     }
   }
 
