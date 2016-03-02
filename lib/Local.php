@@ -117,7 +117,7 @@ class Local {
         exec('kill -15 ' . $this->pid);
       
       proc_terminate($this->handle);
-      proc_close($this->handle);
+      //proc_close($this->handle);
       while($this->isRunning())
         sleep(1);
     }

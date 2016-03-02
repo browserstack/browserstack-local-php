@@ -74,7 +74,7 @@ class LocalTest extends \PHPUnit_Framework_TestCase {
     $this->assertTrue($this->bs_local->isRunning());
     $this->bs_local->stop();
     $this->assertFalse($this->bs_local->isRunning());
-    $this->bs_local->start(array('v' => true, 'force' => true));
+    $this->bs_local->start(array('v' => true));
     $this->assertTrue($this->bs_local->isRunning());
   }
 
