@@ -113,26 +113,22 @@ class Local {
       fclose($this->pipes[1]);
       fclose($this->pipes[2]);
 
-      echo `ps aux| grep BrowserStackLocal`;
-      echo `lsof -i:45691`;
-      echo $this->pid;
-
       if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN')
         exec('kill -15 ' . $this->pid);
       
       proc_terminate($this->handle);
-      //proc_close($this->handle);
-      echo `ps aux| grep BrowserStackLocal`;
-      echo `lsof -i:45691`;
-      echo $this->pid;
-
       while($this->isRunning())
         sleep(1);
     }
   }
 
   public function command() {
-    $command = "exec $this->binary_path -logFile $this->logfile $this->folder_flag $this->key $this->folder_path $this->force_local_flag $this->local_identifier_flag $this->only_flag $this->only_automate_flag $this->proxy_host $this->proxy_port $this->proxy_user $this->proxy_pass $this->force_flag $this->verbose_flag $this->hosts";
+    $exec = "exec";
+    // TODO to test on windows
+    if(strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')
+      $exec = "call";
+
+    $command = "$exec $this->binary_path -logFile $this->logfile $this->folder_flag $this->key $this->folder_path $this->force_local_flag $this->local_identifier_flag $this->only_flag $this->only_automate_flag $this->proxy_host $this->proxy_port $this->proxy_user $this->proxy_pass $this->force_flag $this->verbose_flag $this->hosts";
     $command = preg_replace('/\s+/S', " ", $command);
     return $command;
   }
