@@ -28,8 +28,7 @@ class Local {
       return False;
 
     $status = proc_get_status($this->handle);
-    print_r($status);
-    return !is_null($status["running"]);
+    return is_null($status["running"]) ? false : $status["running"];
   }
 
   public function add_args($arg_key, $value = NULL) {
@@ -117,7 +116,13 @@ class Local {
       if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN')
         exec('kill -15 ' . $this->pid);
       proc_terminate($this->handle);
-      proc_close($this->handle);
+      $status = proc_get_status($this->handle);
+      echo "Stopping";
+      print_r($status);
+      //proc_close($this->handle);
+      // $status = proc_get_status($this->handle);
+      // echo "Stopped";
+      // print_r($status);
       while($this->isRunning())
         sleep(1);
     }
