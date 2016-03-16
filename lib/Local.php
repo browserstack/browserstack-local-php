@@ -113,8 +113,16 @@ class Local {
       fclose($this->pipes[1]);
       fclose($this->pipes[2]);
 
-      if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN')
+      if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN') {
         exec('kill -15 ' . $this->pid);
+      } else {
+        $binary_pid = proc_get_status($this->handle)['pid'];
+        $wmic_output = shell_exec('wmic process where (ParentProcessId='. $binary_pid. ') get Caption,ProcessId');
+        preg_match_all('!\d+!', $wmic_output, $possible_pids);
+        if(!empty($possible_pids[0][0])) {
+          exec("taskkill /F /PID ". $possible_pids[0][0]);
+        }
+      }
       
       proc_terminate($this->handle);
       while($this->isRunning())

@@ -87,12 +87,15 @@ class LocalTest extends \PHPUnit_Framework_TestCase {
   public function test_multiple_binary() {
     $this->bs_local->start(array('v' => true));
     $bs_local_2 = new Local();  
+    $log_file2 = getcwd(). '/log2.log';
+    print($log_file2);
     try {
-      $bs_local_2->start(array('v' => true));
+      $bs_local_2->start(array('v' => true, 'logfile' => $log_file2));
       $this->fail("Expected Exception has not been raised.");
     } catch (LocalException $ex) {
       $emessage = $ex->getMessage();
       $this->assertEquals(trim($emessage), 'Error: Either another browserstack local client is running on your machine or some server is listening on port 45691');
+      unlink($log_file2);
       return;
     }
   }
