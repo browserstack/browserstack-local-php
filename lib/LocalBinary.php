@@ -22,7 +22,11 @@ class LocalBinary {
 
   public function binary_path() {
     $dest_parent_dir = $this->get_available_dirs();
-    $binary_path = $dest_parent_dir. "/BrowserStackLocal";
+    $dest_binary_name = "BrowserStackLocal";
+    if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+      $dest_binary_name = $dest_binary_name. ".exe";
+    }
+    $binary_path = $dest_parent_dir. "/". $dest_binary_name;
     if(file_exists($binary_path)){
       return $binary_path;
     }
@@ -66,18 +70,24 @@ class LocalBinary {
     if (!file_exists($path))
       mkdir($path, 0777, true);
 
-    $ch = curl_init();
+
+    $dest_binary_name = "BrowserStackLocal";
+    if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+      $dest_binary_name = $dest_binary_name. ".exe";
+    }
+    $dest_binary_path = $path. '/'. $dest_binary_name;
+    $file = fopen($dest_binary_path , "w+");
+    $ch = curl_init("");
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_FILE, $file);
     $data = curl_exec ($ch);
     curl_close ($ch);
-
-    $file = fopen($path . '/BrowserStackLocal', "w+");
-    fputs($file, $data);
-    fclose($file);
     
-    chmod($path . '/BrowserStackLocal', 0755);
-    return $path . "/BrowserStackLocal";
+    fclose($file);
+    chmod($dest_binary_path, 0755);
+    return $dest_binary_path;
   }
 
   private function get_available_dirs() {
