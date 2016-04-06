@@ -63,6 +63,12 @@ class LocalTest extends \PHPUnit_Framework_TestCase {
     $this->assertContains('-proxyHost localhost -proxyPort 8080 -proxyUser user -proxyPass pass',$this->bs_local->command());
   }
 
+  public function test_enable_force_proxy() {
+    $this->bs_local->add_args("forceproxy");
+    $this->assertContains('-forceproxy',$this->bs_local->command());
+  }
+
+
   public function test_hosts() {
     $this->bs_local->add_args("hosts", "localhost,8080,0");
     $this->assertContains('localhost,8080,0',$this->bs_local->command());

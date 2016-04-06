@@ -58,6 +58,8 @@ class Local {
       $this->proxy_user = "-proxyUser $value";
     elseif ($arg_key == "proxyPass")
       $this->proxy_pass = "-proxyPass $value";
+    elseif ($arg_key == "forceproxy")
+      $this->force_proxy_flag = "-forceproxy";
     elseif ($arg_key == "hosts")
       $this->hosts = $value;
     elseif ($arg_key == "f") {
@@ -136,7 +138,7 @@ class Local {
     if(strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')
       $exec = "call";
 
-    $command = "$exec $this->binary_path -logFile $this->logfile $this->folder_flag $this->key $this->folder_path $this->force_local_flag $this->local_identifier_flag $this->only_flag $this->only_automate_flag $this->proxy_host $this->proxy_port $this->proxy_user $this->proxy_pass $this->force_flag $this->verbose_flag $this->hosts";
+    $command = "$exec $this->binary_path -logFile $this->logfile $this->folder_flag $this->key $this->folder_path $this->force_local_flag $this->local_identifier_flag $this->only_flag $this->only_automate_flag $this->proxy_host $this->proxy_port $this->proxy_user $this->proxy_pass $this->force_proxy_flag $this->force_flag $this->verbose_flag $this->hosts";
     $command = preg_replace('/\s+/S', " ", $command);
     return $command;
   }
