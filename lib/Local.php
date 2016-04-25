@@ -32,37 +32,37 @@ class Local {
   }
 
   public function add_args($arg_key, $value = NULL) {
-    if ($arg_key == "key")
+    if ($arg_key == "-key")
       $this->key = $value;
-    elseif ($arg_key == "binaryPath")
+    elseif ($arg_key == "-binaryPath")
       $this->binary_path = $value;
-    elseif ($arg_key == "logfile")
+    elseif ($arg_key == "-logfile")
       $this->logfile = $value;
-    elseif ($arg_key == "v")
+    elseif ($arg_key == "-v")
       $this->verbose_flag = "-vvv";
-    elseif ($arg_key == "force")
+    elseif ($arg_key == "-force")
       $this->force_flag = "-force";
-    elseif ($arg_key == "only")
+    elseif ($arg_key == "-only")
       $this->only_flag = "-only";
-    elseif ($arg_key == "onlyAutomate")
+    elseif ($arg_key == "-onlyAutomate")
       $this->only_automate_flag = "-onlyAutomate";
-    elseif ($arg_key == "forcelocal")
+    elseif ($arg_key == "-forcelocal")
       $this->force_local_flag = "-forcelocal";
-    elseif ($arg_key == "localIdentifier")
+    elseif ($arg_key == "-localIdentifier")
       $this->local_identifier_flag = "-localIdentifier $value";
-    elseif ($arg_key == "proxyHost")
+    elseif ($arg_key == "-proxyHost")
       $this->proxy_host = "-proxyHost $value";
-    elseif ($arg_key == "proxyPort")
+    elseif ($arg_key == "-proxyPort")
       $this->proxy_port = "-proxyPort $value";
-    elseif ($arg_key == "proxyUser")
+    elseif ($arg_key == "-proxyUser")
       $this->proxy_user = "-proxyUser $value";
-    elseif ($arg_key == "proxyPass")
+    elseif ($arg_key == "-proxyPass")
       $this->proxy_pass = "-proxyPass $value";
-    elseif ($arg_key == "forceproxy")
+    elseif ($arg_key == "-forceproxy")
       $this->force_proxy_flag = "-forceproxy";
-    elseif ($arg_key == "hosts")
+    elseif ($arg_key == "-hosts")
       $this->hosts = $value;
-    elseif ($arg_key == "f") {
+    elseif ($arg_key == "-f") {
       $this->folder_flag = "-f";
       $this->folder_path = $value;
     }
