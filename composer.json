@@ -1,13 +1,13 @@
 {
-  "name": "browserstack/local",
-  "description": "A PHP client for BrowserStackLocal",
+  "name": "browserstack/browserstack-local",
+  "description": "PHP bindings for BrowserStack Local",
   "keywords": ["browserstacklocal", "selenium", "php", "browserstack", "local"],
-  "homepage": "https://github.com/browserstack/browserstack-php",
+  "homepage": "https://github.com/browserstack/browserstack-local-php",
   "type": "library",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "support": {
-    "issues": "https://github.com/browserstack/browserstack-php/issues",
-    "source": "https://github.com/browserstack/browserstack-php"
+    "issues": "https://github.com/browserstack/browserstack-local-php/issues",
+    "source": "https://github.com/browserstack/browserstack-local-php"
   },
   "require": {
     "php": ">=5.3.19"
