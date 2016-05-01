@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/browserstack/browserstack-local-php.svg?branch=master)](https://travis-ci.org/browserstack/browserstack-local-php)
 
-A simple PHP wrapper for BrowserStack Local Binary.
+PHP bindings for BrowserStack Local.
 
 ## Installation
 
