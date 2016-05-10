@@ -25,11 +25,23 @@ class Local {
   }
 
   public function isRunning() {
-    if (is_null($this->handle))
-      return False;
+    
+    if(strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')
+    {
+      $processes = explode( "\n", shell_exec( "tasklist.exe" ));
+      foreach( $processes as $process )
+      {
+        if( strpos( "Image Name", $process ) === 0 || strpos( "===", $process ) === 0 )
+          continue;
+        $matches = false;
+        preg_match( "/(.*?)\s+(\d+).*$/", $process, $matches );
+        $this->pid = $matches[ 2 ];
+      }
 
-    $status = proc_get_status($this->handle);
-    return is_null($status["running"]) ? false : $status["running"];
+    }
+    else {
+        return file_exists( "/proc/$this->pid" );
+    }
   }
 
   public function add_args($arg_key, $value = NULL) {
@@ -88,72 +100,60 @@ class Local {
       2 => array("pipe", "w")
     );
 
-    $call = $this->command();
+    $call = $this->start_command();
     if(strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')
       system('echo "" > '. '$this->logfile');
     else
       system("echo \"\" > '$this->logfile' ");
 
     $this->handle = proc_open($call, $descriptorspec, $this->pipes);
-    $status = proc_get_status($this->handle);
-    $this->pid = $status['pid'];
-
-    $this->loghandle = fopen($this->logfile,"r");
-    while (true) {
-      $buffer = fread($this->loghandle, 1024);
-      if (preg_match("/Error:[^\n]+/i", $buffer, $match)) {
-        $this->stop();
-        throw new LocalException($match[0]);
-        break;
-      }
-      elseif (preg_match("/\bPress Ctrl-C to exit\b/i", $buffer, $match)){
-        fclose($this->loghandle);
-        break;
-      }
-
-      //flush();
-      sleep(1);
+    $return_message = "";
+    while(!feof($this->pipes[1]))
+    {
+      $return_message = $return_message + fgets($pipes[1], 1024);
+      if (strlen($return_message) == 0) break;
+      ob_flush();
+      flush();
     }
+
+    fclose($this->pipes[1]);
+    $data = json_encode($return_message);
+    if ($data['state'] != "connected") {
+      throw new LocalException($data['message']);
+    }
+    $this->pid = $data['pid'];
   }
 
   public function stop() {
     fclose($this->loghandle);
-    if (is_null($this->handle))
-      return;
-    else {
-      while(fgets($this->pipes[0]));
-      fclose($this->pipes[0]);
-      fclose($this->pipes[1]);
-      fclose($this->pipes[2]);
-
-      if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN') {
-        exec('kill -15 ' . $this->pid);
-      } else {
-        $binary_pid = proc_get_status($this->handle)['pid'];
-        $wmic_output = shell_exec('wmic process where (ParentProcessId='. $binary_pid. ') get Caption,ProcessId');
-        preg_match_all('!\d+!', $wmic_output, $possible_pids);
-        if(!empty($possible_pids[0][0])) {
-          exec("taskkill /F /PID ". $possible_pids[0][0]);
-        }
-      }
-      
-      proc_terminate($this->handle);
-      while($this->isRunning())
-        sleep(1);
-    }
+    $call = $this->stop_command();
+    system("$call");
   }
 
-  public function command() {
+  public function start_command() {
     $exec = "exec";
     // TODO to test on windows
     if(strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')
       $exec = "call";
 
     $user_args = join(' ', $this->user_args);
-    $command = "$exec $this->binary_path -logFile '$this->logfile' $this->folder_flag $this->key $this->folder_path $this->force_local_flag $this->local_identifier_flag $this->only_flag $this->only_automate_flag $this->proxy_host $this->proxy_port $this->proxy_user $this->proxy_pass $this->force_proxy_flag $this->force_flag $this->verbose_flag $this->hosts $user_args";
+    $command = "$exec $this->binary_path -d start -logFile '$this->logfile' $this->folder_flag $this->key $this->folder_path $this->force_local_flag $this->local_identifier_flag $this->only_flag $this->only_automate_flag $this->proxy_host $this->proxy_port $this->proxy_user $this->proxy_pass $this->force_proxy_flag $this->force_flag $this->verbose_flag $this->hosts $user_args";
     $command = preg_replace('/\s+/S', " ", $command);
     return $command;
   }
+
+  public function stop_command() {
+    $exec = "exec";
+    // TODO to test on windows
+    if(strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')
+      $exec = "call";
+
+    $user_args = join(' ', $this->user_args);
+    $command = "$exec $this->binary_path -d stop $this->local_identifier_flag";
+    $command = preg_replace('/\s+/S', " ", $command);
+    return $command;
+  }
+
 }
 
 ?>
