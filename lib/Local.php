@@ -10,9 +10,6 @@ error_reporting(1);
 
 class Local {
 
-  private $handle = NULL;
-  private $pipes = array();
-  private $loghandle = NULL;
   public $pid = NULL;
   
   public function __construct() {
@@ -25,7 +22,8 @@ class Local {
   }
 
   public function isRunning() {
-    
+    if ($this->pid == NULL)
+      return False;
     if(strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')
     {
       $processes = explode( "\n", shell_exec( "tasklist.exe" ));
@@ -40,7 +38,11 @@ class Local {
 
     }
     else {
-        return file_exists( "/proc/$this->pid" );
+      $return_message = shell_exec("ps -" . "$this->pid " . "| wc -l");
+      if (intval($return_message) > 1)
+      {
+        return True;
+      }
     }
   }
 
@@ -109,7 +111,6 @@ class Local {
   }
 
   public function stop() {
-    fclose($this->loghandle);
     $call = $this->stop_command();
     shell_exec("$call");
   }
