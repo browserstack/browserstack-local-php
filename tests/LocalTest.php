@@ -22,13 +22,13 @@ class LocalTest extends \PHPUnit_Framework_TestCase {
 
   public function test_verbose() {
     $this->bs_local->add_args('v');
-    $this->assertContains('-v',$this->bs_local->command());
+    $this->assertContains('-v',$this->bs_local->start_command());
   }
 
   public function test_set_folder() {
     $this->bs_local->add_args('f', "/");
-    $this->assertContains('-f',$this->bs_local->command());
-    $this->assertContains('/',$this->bs_local->command());
+    $this->assertContains('-f',$this->bs_local->start_command());
+    $this->assertContains('/',$this->bs_local->start_command());
   }
 
   public function test_enable_force() {
@@ -37,36 +37,36 @@ class LocalTest extends \PHPUnit_Framework_TestCase {
 
   public function test_set_local_identifier() {
     $this->bs_local->add_args("localIdentifier", "randomString");
-    $this->assertContains('-localIdentifier randomString',$this->bs_local->command());
+    $this->assertContains('-localIdentifier randomString',$this->bs_local->start_command());
   }
 
   public function test_enable_only() {
     $this->bs_local->add_args("only");
-    $this->assertContains('-only',$this->bs_local->command());
+    $this->assertContains('-only',$this->bs_local->start_command());
   }
 
   public function test_enable_only_automate() {
     $this->bs_local->add_args("onlyAutomate");
-    $this->assertContains('-onlyAutomate', $this->bs_local->command()); 
+    $this->assertContains('-onlyAutomate', $this->bs_local->start_command()); 
   }
 
   public function test_enable_force_local() {
     $this->bs_local->add_args("forcelocal");
-    $this->assertContains('-forcelocal',$this->bs_local->command());
+    $this->assertContains('-forcelocal',$this->bs_local->start_command());
   }
 
   public function test_custom_boolean_argument() {
     $this->bs_local->add_args("boolArg1", true);
     $this->bs_local->add_args("boolArg2", true);
-    $this->assertContains('-boolArg1',$this->bs_local->command());
-    $this->assertContains('-boolArg2',$this->bs_local->command());
+    $this->assertContains('-boolArg1',$this->bs_local->start_command());
+    $this->assertContains('-boolArg2',$this->bs_local->start_command());
   }
 
   public function test_custom_keyval() {
     $this->bs_local->add_args("customKey1", "custom value1");
     $this->bs_local->add_args("customKey2", "custom value2");
-    $this->assertContains('-customKey1 \'custom value1\'',$this->bs_local->command());
-    $this->assertContains('-customKey2 \'custom value2\'',$this->bs_local->command());
+    $this->assertContains('-customKey1 \'custom value1\'',$this->bs_local->start_command());
+    $this->assertContains('-customKey2 \'custom value2\'',$this->bs_local->start_command());
   }
 
   public function test_set_proxy() {
@@ -74,17 +74,17 @@ class LocalTest extends \PHPUnit_Framework_TestCase {
     $this->bs_local->add_args("proxyPort", 8080);
     $this->bs_local->add_args("proxyUser", "user");
     $this->bs_local->add_args("proxyPass", "pass");
-    $this->assertContains('-proxyHost localhost -proxyPort 8080 -proxyUser user -proxyPass pass',$this->bs_local->command());
+    $this->assertContains('-proxyHost localhost -proxyPort 8080 -proxyUser user -proxyPass pass',$this->bs_local->start_command());
   }
 
   public function test_enable_force_proxy() {
     $this->bs_local->add_args("-forceproxy");
-    $this->assertContains('-forceproxy',$this->bs_local->command());
+    $this->assertContains('-forceproxy',$this->bs_local->start_command());
   }
 
   public function test_hosts() {
     $this->bs_local->add_args("-hosts", "localhost,8080,0");
-    $this->assertContains('localhost,8080,0',$this->bs_local->command());
+    $this->assertContains('localhost,8080,0',$this->bs_local->start_command());
   }
 
   public function test_isRunning() {
@@ -113,7 +113,7 @@ class LocalTest extends \PHPUnit_Framework_TestCase {
       $this->fail("Expected Exception has not been raised.");
     } catch (LocalException $ex) {
       $emessage = $ex->getMessage();
-      $this->assertEquals(trim($emessage), 'Error: Either another browserstack local client is running on your machine or some server is listening on port 45691');
+      $this->assertEquals(trim($emessage), 'Either another browserstack local client is running on your machine or some server is listening on port 45691');
       unlink($log_file2);
       return;
     }
