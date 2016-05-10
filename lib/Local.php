@@ -34,8 +34,9 @@ class Local {
         $matches = false;
         preg_match( "/(.*?)\s+(\d+).*$/", $process, $matches );
         $this->pid = $matches[ 2 ];
+        return True;
       }
-
+      return False;
     }
     else {
       $return_message = shell_exec("ps -" . "$this->pid " . "| wc -l");
@@ -43,6 +44,7 @@ class Local {
       {
         return True;
       }
+      return False;
     }
   }
 
