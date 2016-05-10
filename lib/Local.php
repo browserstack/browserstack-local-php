@@ -13,7 +13,7 @@ class Local {
   public $pid = NULL;
   
   public function __construct() {
-    $this->key = getenv("BROWSERSTACK_KEY");
+    $this->key = getenv("BROWSERSTACK_ACCESS_KEY");
     $this->logfile = getcwd() . "/local.log";
     $this->user_args = array();
   }
