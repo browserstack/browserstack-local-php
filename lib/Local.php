@@ -16,7 +16,7 @@ class Local {
   public $pid = NULL;
   
   public function __construct() {
-    $this->key = getenv("BROWSERSTACK_ACCESS_KEY");
+    $this->key = getenv("BROWSERSTACK_KEY");
     $this->logfile = getcwd() . "/local.log";
     $this->user_args = array();
   }
@@ -94,31 +94,15 @@ class Local {
     $this->binary = new LocalBinary();
     $this->binary_path = $this->binary->binary_path();
     
-    $descriptorspec = array(
-      0 => array("pipe", "r"),
-      1 => array("pipe", "w"),
-      2 => array("pipe", "w")
-    );
-
     $call = $this->start_command();
     if(strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')
       system('echo "" > '. '$this->logfile');
     else
       system("echo \"\" > '$this->logfile' ");
-
-    $this->handle = proc_open($call, $descriptorspec, $this->pipes);
-    $return_message = "";
-    while(!feof($this->pipes[1]))
-    {
-      $return_message = $return_message + fgets($pipes[1], 1024);
-      if (strlen($return_message) == 0) break;
-      ob_flush();
-      flush();
-    }
-
-    fclose($this->pipes[1]);
-    $data = json_encode($return_message);
-    if ($data['state'] != "connected") {
+    $call = $call . "2>&1";
+    $return_message = shell_exec($call);
+    $data = json_decode($return_message,true);
+    if ($data["state"] != "connected") {
       throw new LocalException($data['message']);
     }
     $this->pid = $data['pid'];
@@ -127,7 +111,7 @@ class Local {
   public function stop() {
     fclose($this->loghandle);
     $call = $this->stop_command();
-    system("$call");
+    shell_exec("$call");
   }
 
   public function start_command() {
