@@ -113,8 +113,10 @@ class Local {
   }
 
   public function stop() {
+    if(!$this->pid) return;
     $call = $this->stop_command();
     shell_exec("$call");
+    $this->pid = null;
   }
 
   public function start_command() {
