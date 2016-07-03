@@ -16,6 +16,21 @@ class Local {
     $this->key = getenv("BROWSERSTACK_ACCESS_KEY");
     $this->logfile = getcwd() . "/local.log";
     $this->user_args = array();
+    $this->binary_path = "";
+    $this->folder_flag = "";
+    $this->folder_path = "";
+    $this->force_local_flag = "";
+    $this->local_identifier_flag = "";
+    $this->only_flag = "";
+    $this->only_automate_flag = "";
+    $this->proxy_host = "";
+    $this->proxy_port = "";
+    $this->proxy_user = "";
+    $this->proxy_pass = "";
+    $this->force_proxy_flag = "";
+    $this->force_flag = "";
+    $this->verbose_flag = "";
+    $this->hosts = "";
   }
 
   public function __destruct() {
@@ -113,8 +128,10 @@ class Local {
   }
 
   public function stop() {
+    if(!$this->pid) return;
     $call = $this->stop_command();
     shell_exec("$call");
+    $this->pid = null;
   }
 
   public function start_command() {
