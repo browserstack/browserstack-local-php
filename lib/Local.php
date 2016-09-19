@@ -122,7 +122,7 @@ class Local {
     $return_message = shell_exec($call);
     $data = json_decode($return_message,true);
     if ($data["state"] != "connected") {
-      throw new LocalException($data['message']);
+      throw new LocalException($data['message']['message']);
     }
     $this->pid = $data['pid'];
   }
