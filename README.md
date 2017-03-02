@@ -14,7 +14,7 @@ If you don't already use Composer, you can download the `composer.phar` binary:
 
 Then install the library:
 
-    `php composer.phar require browserstack/local:dev-master`
+    `php composer.phar require browserstack/browserstack-local:dev-master`
 
 Install all depenedencies:
     `php composer.phar install`
