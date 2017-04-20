@@ -73,25 +73,25 @@ class Local {
     elseif ($arg_key == "v")
       $this->verbose_flag = "-vvv";
     elseif ($arg_key == "force")
-      $this->force_flag = "-force";
+      $this->force_flag = "--force";
     elseif ($arg_key == "only")
-      $this->only_flag = "-only";
+      $this->only_flag = "--only";
     elseif ($arg_key == "onlyAutomate")
-      $this->only_automate_flag = "-onlyAutomate";
+      $this->only_automate_flag = "--onlyAutomate";
     elseif ($arg_key == "forcelocal")
-      $this->force_local_flag = "-forcelocal";
+      $this->force_local_flag = "--force-local";
     elseif ($arg_key == "localIdentifier")
-      $this->local_identifier_flag = "-localIdentifier $value";
+      $this->local_identifier_flag = "--localIdentifier $value";
     elseif ($arg_key == "proxyHost")
-      $this->proxy_host = "-proxyHost $value";
+      $this->proxy_host = "--proxyHost $value";
     elseif ($arg_key == "proxyPort")
-      $this->proxy_port = "-proxyPort $value";
+      $this->proxy_port = "--proxyPort $value";
     elseif ($arg_key == "proxyUser")
-      $this->proxy_user = "-proxyUser $value";
+      $this->proxy_user = "--proxyUser $value";
     elseif ($arg_key == "proxyPass")
-      $this->proxy_pass = "-proxyPass $value";
+      $this->proxy_pass = "--proxyPass $value";
     elseif ($arg_key == "forceproxy")
-      $this->force_proxy_flag = "-forceproxy";
+      $this->force_proxy_flag = "--forceproxy";
     elseif ($arg_key == "hosts")
       $this->hosts = $value;
     elseif ($arg_key == "f") {
