@@ -37,22 +37,22 @@ class LocalTest extends \PHPUnit_Framework_TestCase {
 
   public function test_set_local_identifier() {
     $this->bs_local->add_args("localIdentifier", "randomString");
-    $this->assertContains('-localIdentifier randomString',$this->bs_local->start_command());
+    $this->assertContains('--localIdentifier randomString',$this->bs_local->start_command());
   }
 
   public function test_enable_only() {
     $this->bs_local->add_args("only");
-    $this->assertContains('-only',$this->bs_local->start_command());
+    $this->assertContains('--only',$this->bs_local->start_command());
   }
 
   public function test_enable_only_automate() {
     $this->bs_local->add_args("onlyAutomate");
-    $this->assertContains('-onlyAutomate', $this->bs_local->start_command()); 
+    $this->assertContains('--onlyAutomate', $this->bs_local->start_command());
   }
 
   public function test_enable_force_local() {
     $this->bs_local->add_args("forcelocal");
-    $this->assertContains('-forcelocal',$this->bs_local->start_command());
+    $this->assertContains('--force-local',$this->bs_local->start_command());
   }
 
   public function test_custom_boolean_argument() {
@@ -74,16 +74,16 @@ class LocalTest extends \PHPUnit_Framework_TestCase {
     $this->bs_local->add_args("proxyPort", 8080);
     $this->bs_local->add_args("proxyUser", "user");
     $this->bs_local->add_args("proxyPass", "pass");
-    $this->assertContains('-proxyHost localhost -proxyPort 8080 -proxyUser user -proxyPass pass',$this->bs_local->start_command());
+    $this->assertContains('--proxyHost localhost --proxyPort 8080 --proxyUser user --proxyPass pass',$this->bs_local->start_command());
   }
 
   public function test_enable_force_proxy() {
-    $this->bs_local->add_args("-forceproxy");
-    $this->assertContains('-forceproxy',$this->bs_local->start_command());
+    $this->bs_local->add_args("forceproxy");
+    $this->assertContains('--forceproxy',$this->bs_local->start_command());
   }
 
   public function test_hosts() {
-    $this->bs_local->add_args("-hosts", "localhost,8080,0");
+    $this->bs_local->add_args("--hosts", "localhost,8080,0");
     $this->assertContains('localhost,8080,0',$this->bs_local->start_command());
   }
 
