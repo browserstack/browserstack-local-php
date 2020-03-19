@@ -141,7 +141,10 @@ class Local {
       $exec = "call";
 
     $user_args = join(' ', $this->user_args);
-    $command = "$exec $this->binary_path -d start -logFile '$this->logfile' $this->folder_flag $this->key $this->folder_path $this->force_local_flag $this->local_identifier_flag $this->only_flag $this->only_automate_flag $this->proxy_host $this->proxy_port $this->proxy_user $this->proxy_pass $this->force_proxy_flag $this->force_flag $this->verbose_flag $this->hosts $user_args";
+    if(strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')
+      $command = "$exec $this->binary_path -d start -logFile $this->logfile $this->folder_flag $this->key $this->folder_path $this->force_local_flag $this->local_identifier_flag $this->only_flag $this->only_automate_flag $this->proxy_host $this->proxy_port $this->proxy_user $this->proxy_pass $this->force_proxy_flag $this->force_flag $this->verbose_flag $this->hosts $user_args";
+    else
+      $command = "$exec $this->binary_path -d start -logFile '$this->logfile' $this->folder_flag $this->key $this->folder_path $this->force_local_flag $this->local_identifier_flag $this->only_flag $this->only_automate_flag $this->proxy_host $this->proxy_port $this->proxy_user $this->proxy_pass $this->force_proxy_flag $this->force_flag $this->verbose_flag $this->hosts $user_args";
     $command = preg_replace('/\s+/S', " ", $command);
     return $command;
   }
