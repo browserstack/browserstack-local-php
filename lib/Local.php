@@ -111,6 +111,10 @@ class Local {
       $this->add_args($key,$value);
 
     $this->binary = new LocalBinary();
+    // If this class has been passed a custom binary_path, pass it to the start
+    // of the LocalBinary class' list of possible binary paths.
+    if(!empty($this->binary_path))
+        array_unshift($this->binary->possible_binary_paths, $this->binary_path);
     $this->binary_path = $this->binary->binary_path();
     
     $call = $this->start_command();
