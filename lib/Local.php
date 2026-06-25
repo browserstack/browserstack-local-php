@@ -118,7 +118,7 @@ class Local {
       system('echo "" > '. '$this->logfile');
     else
       system("echo \"\" > '$this->logfile' ");
-    $call = $call . "2>&1";
+    $call = $call . " 2>&1";
     $return_message = shell_exec($call);
     $data = json_decode($return_message,true);
     if ($data["state"] != "connected") {
