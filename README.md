@@ -134,11 +134,44 @@ To specify the path to file where the logs will be saved -
 $bs_local_args = array("key" => "<browserstack-accesskey>", "logfile" => "/browserstack/logs.txt");
 ```
 
+## Upgrading
+
+### TLS verification on the binary download
+
+Earlier releases downloaded the BrowserStack Local binary with TLS certificate
+verification disabled. **Verification is now enforced**, and the download also
+rejects a response that is not a valid binary rather than storing it.
+
+If your machine sits behind a TLS-inspecting proxy whose certificate authority is
+not in the system trust store, the download will now fail instead of silently
+succeeding, and you will see:
+
+```
+Download failed (cURL error 60): SSL certificate problem: self signed certificate in certificate chain
+```
+
+**Remedy:** install your organisation's CA certificate into the system trust store
+(libcurl honours it) — on Debian/Ubuntu, drop the PEM into
+`/usr/local/share/ca-certificates/` and run `update-ca-certificates`; on macOS, add
+it to the System keychain and mark it trusted; on Windows, import it into
+*Trusted Root Certification Authorities*. Alternatively, download the binary out of
+band and point the library at it with the `binaryPath` argument.
+
+We do not provide a switch to disable verification: it is what protects the binary
+you are about to execute from being substituted in transit.
+
 ## Contribute
 
 Testing is possible using [PHPUnit](https://phpunit.de/).
 
 To run the tests, run the command: `phpunit`
+
+`@group network` tests reach external hosts. To skip them:
+`phpunit --exclude-group network`.
+
+`tests/manual/php-poc.sh` is an end-to-end demonstration that the binary download
+refuses a substituted binary served over an untrusted TLS certificate. It needs
+`php`, `git`, `openssl` and `python3`, and is run by hand — not part of the suite.
 
 ### Reporting bugs
 
