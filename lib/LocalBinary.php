@@ -38,6 +38,7 @@ class LocalBinary {
       }
       // A cached file that is not a usable binary is discarded rather than
       // executed — it may be a stored error page or a partial download.
+      // nosemgrep: php.lang.security.unlink-use.unlink-use -- basename is fixed by dest_binary_name(), no user input in the path
       unlink($binary_path);
     }
     return $this->download_binary($dest_parent_dir);
@@ -109,6 +110,7 @@ class LocalBinary {
         $last_error = $e->getMessage();
       }
       // Never leave an unverified file behind for a later run to pick up and execute.
+      // nosemgrep: php.lang.security.unlink-use.unlink-use -- basename is fixed by dest_binary_name(), no user input in the path
       if (file_exists($dest_binary_path))
         unlink($dest_binary_path);
     }
@@ -155,6 +157,9 @@ class LocalBinary {
   // authenticity check — that is the job of TLS chain validation in
   // fetch_binary(). The file is deliberately not executed to test it.
   protected function verify_binary($binary_path) {
+    // The retry loop stats the same path up to DOWNLOAD_ATTEMPTS times, so a
+    // cached stat entry from a previous attempt must not decide this one.
+    clearstatcache(true, $binary_path);
     if (!is_file($binary_path))
       return false;
     if (filesize($binary_path) < self::MIN_BINARY_SIZE)
@@ -180,6 +185,7 @@ class LocalBinary {
   }
 
   private function make_executable($binary_path) {
+    clearstatcache(true, $binary_path);
     if ($this->is_windows() || is_executable($binary_path))
       return true;
     return @chmod($binary_path, 0755);

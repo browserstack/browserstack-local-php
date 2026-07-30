@@ -1,0 +1,39 @@
+name: PHP
+
+on:
+  pull_request:
+    branches: ["master", "main"]
+  push:
+    branches: ["master", "main"]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: lint + phpunit
+    runs-on: ubuntu-latest
+    # phpunit 4.x (pinned in composer.json, and the API both test files use) does
+    # not run on PHP 8. 7.4 is the newest runtime it supports.
+    container: php:7.4-cli
+    steps:
+      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+
+      # Runs first and on its own: a syntax error must fail the build even if the
+      # suite cannot boot.
+      - name: Syntax check
+        run: |
+          php -l lib/Local.php
+          php -l lib/LocalBinary.php
+          php -l lib/LocalException.php
+          php -l tests/LocalTest.php
+          php -l tests/LocalBinaryTest.php
+
+      - name: Install dependencies
+        run: |
+          curl -sS https://getcomposer.org/installer | php
+          php composer.phar install --no-interaction --no-progress
+
+      # Excludes @group network — those tests reach badssl.com and the real S3 host.
+      - name: PHPUnit
+        run: ./vendor/bin/phpunit --exclude-group network
