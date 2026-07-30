@@ -29,18 +29,18 @@ class TestableLocalBinary extends LocalBinary {
   }
 }
 
-class LocalBinaryTest extends \PHPUnit_Framework_TestCase {
+class LocalBinaryTest extends \PHPUnit\Framework\TestCase {
 
   private $binary;
   private $dir;
 
-  public function setUp() {
+  protected function setUp(): void {
     $this->binary = new TestableLocalBinary();
     $this->dir = sys_get_temp_dir() . '/bs-local-binary-test-' . getmypid() . '-' . mt_rand();
     mkdir($this->dir, 0777, true);
   }
 
-  public function tearDown() {
+  protected function tearDown(): void {
     foreach (glob($this->dir . '/*') as $file) {
       unlink($file);
     }
@@ -72,7 +72,7 @@ class LocalBinaryTest extends \PHPUnit_Framework_TestCase {
     $this->assertNotNull($raised, 'download_binary must reject an untrusted certificate');
     // cURL error 60 is CURLE_PEER_FAILED_VERIFICATION — pins the failure to
     // certificate validation rather than any later check.
-    $this->assertContains('cURL error 60', $raised->getMessage());
+    $this->assertStringContainsString('cURL error 60', $raised->getMessage());
     $this->assertFalse(file_exists($this->dest_path()), 'no file may be left behind on failure');
   }
 
