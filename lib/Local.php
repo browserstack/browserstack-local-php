@@ -100,6 +100,9 @@ class Local {
       $pid = intval($this->pid);
       if ($pid <= 0)
         return False;
+      // $pid is the intval() above, guarded > 0, so the only bytes that can
+      // reach the shell here are digits.
+      // nosemgrep: php.lang.security.exec-use.exec-use
       $return_message = shell_exec("ps -" . $pid . " | wc -l");
       if (intval($return_message) > 1)
       {
@@ -170,8 +173,14 @@ class Local {
     // quoted here too — the old single-quote wrapper was escapable. The Windows
     // branch additionally used a single-quoted PHP string, so it truncated a
     // file literally named '$this->logfile' instead of the configured one.
+    // nosemgrep: php.lang.security.exec-use.exec-use
     system("echo \"\" > " . self::esc($this->logfile));
     $call = $call . " 2>&1";
+    // $call comes from start_command(), where every caller-supplied part is
+    // escapeshellarg()'d and every unquoted token is a fixed flag name. This is
+    // the sink the whole change exists to make safe; tests/LocalTest.php pins
+    // that with payloads that fail on the pre-fix code.
+    // nosemgrep: php.lang.security.exec-use.exec-use
     $return_message = shell_exec($call);
     $data = json_decode($return_message,true);
     if ($data["state"] != "connected") {
