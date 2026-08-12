@@ -18,16 +18,25 @@ permissions:
 jobs:
   semgrep:
     # User definable name of this GitHub Actions job.
+    # This job runs third-party code (the Semgrep container), so it is granted
+    # `contents: read` only. SARIF upload — which needs `security-events: write` — is
+    # deliberately isolated in the `upload-sarif` job below, so a compromised image
+    # cannot write to the repository's code-scanning dashboard.
     permissions:
       contents: read  # for actions/checkout to fetch code
-      security-events: write  # for github/codeql-action/upload-sarif to upload SARIF results
-    name: semgrep/ci 
-    # If you are self-hosting, change the following `runs-on` value: 
+    name: semgrep/ci
+    # If you are self-hosting, change the following `runs-on` value:
     runs-on: ubuntu-latest
 
     container:
       # A Docker image with Semgrep installed. Do not change this.
-      image: returntocorp/semgrep:1.166.0
+      # Pinned by immutable digest, not by tag: a tag (even a version tag) can be
+      # re-pointed at new content upstream, which would silently execute unreviewed
+      # third-party code in this runner on the next scheduled run.
+      # Digest below == returntocorp/semgrep:1.166.0 (multi-arch index, pushed 2026-06-11).
+      # To refresh the pin (and update this comment):
+      #   docker manifest inspect returntocorp/semgrep:<version> -v | grep -m1 Digest
+      image: returntocorp/semgrep@sha256:c180f0c93a17b420c0af5006214a29d3c747c5459c732b740191adf657dd0068
     # Skip any PR created by dependabot to avoid permission issues:
     if: (github.actor != 'dependabot[bot]')
 
@@ -37,11 +46,46 @@ jobs:
       # Run the "semgrep ci" command on the command line of the docker image.
       - run: semgrep ci --sarif --output=semgrep.sarif
         env:
-            # Add the rules that Semgrep uses by setting the SEMGREP_RULES environment variable. 
+            # Add the rules that Semgrep uses by setting the SEMGREP_RULES environment variable.
             SEMGREP_RULES: p/default # more at semgrep.dev/explore
+
+      # Hand the SARIF to the upload job as an artifact. `semgrep ci` exits non-zero when
+      # it has blocking findings, so this must run even on failure.
+      - name: Upload SARIF as a workflow artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: semgrep-sarif
+          path: semgrep.sarif
+          if-no-files-found: error
+        if: always()
+
+  # Separate job so that `security-events: write` is never held by the job running the
+  # third-party Semgrep image. This job runs no third-party code beyond first-party
+  # GitHub actions, all digest-pinned.
+  upload-sarif:
+    name: Upload SARIF to GitHub Advanced Security Dashboard
+    needs: semgrep
+    if: always() && (github.actor != 'dependabot[bot]')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write  # for github/codeql-action/upload-sarif to upload SARIF results
+
+    steps:
+      # Tolerate a missing artifact. If the semgrep job died BEFORE `semgrep ci` ran — a
+      # container-pull failure, or checkout failing — no SARIF was ever written, and this
+      # job should not add a second red pointing at artifact download when the real cause
+      # is upstream. The container job's own failure already tells that story.
+      # (`semgrep ci` exiting 1 on blocking findings is the normal case: the SARIF exists,
+      # the artifact uploads, and the upload below runs as usual.)
+      - name: Download SARIF artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: semgrep-sarif
+        continue-on-error: true
 
       - name: Upload SARIF file for GitHub Advanced Security Dashboard
         uses: github/codeql-action/upload-sarif@6c089f53dd51dc3fc7e599c3cb5356453a52ca9e # v2.20.0
         with:
           sarif_file: semgrep.sarif
-        if: always()
+        if: hashFiles('semgrep.sarif') != ''
