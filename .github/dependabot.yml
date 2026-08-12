@@ -13,3 +13,7 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
+    # Don't propose a version the day it is published: a compromised or hijacked release
+    # is usually caught and yanked within a few days. Same reasoning as the digest pin.
+    cooldown:
+      default-days: 7
