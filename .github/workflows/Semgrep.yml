@@ -72,12 +72,20 @@ jobs:
       security-events: write  # for github/codeql-action/upload-sarif to upload SARIF results
 
     steps:
+      # Tolerate a missing artifact. If the semgrep job died BEFORE `semgrep ci` ran — a
+      # container-pull failure, or checkout failing — no SARIF was ever written, and this
+      # job should not add a second red pointing at artifact download when the real cause
+      # is upstream. The container job's own failure already tells that story.
+      # (`semgrep ci` exiting 1 on blocking findings is the normal case: the SARIF exists,
+      # the artifact uploads, and the upload below runs as usual.)
       - name: Download SARIF artifact
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: semgrep-sarif
+        continue-on-error: true
 
       - name: Upload SARIF file for GitHub Advanced Security Dashboard
         uses: github/codeql-action/upload-sarif@6c089f53dd51dc3fc7e599c3cb5356453a52ca9e # v2.20.0
         with:
           sarif_file: semgrep.sarif
+        if: hashFiles('semgrep.sarif') != ''
