@@ -1,0 +1,15 @@
+# Keeps the digest/SHA pins in .github/workflows/ from going stale.
+#
+# NOTE: Dependabot cannot bump the `container: image:` digest in a workflow file — its
+# `docker` ecosystem only parses Dockerfiles, Kubernetes manifests and Helm values
+# (dependabot/dependabot-core#5819), and `github-actions` only covers `uses:` refs.
+# The Semgrep image digest in Semgrep.yml must therefore be refreshed manually (the
+# command is in a comment next to the pin), or by adopting Renovate, which does support
+# workflow container digests.
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
