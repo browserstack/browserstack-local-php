@@ -119,6 +119,8 @@ run_arm('logfile, single-quote break-out', $m, function () use ($m) {
 // -- F-003: the add_args() else-branch, via the KEY and via the VALUE ---------
 $m = marker(7);
 run_arm('arbitrary arg_key (injection via the name)', $m, function () use ($m) {
+    // The name is quoted rather than rejected: it is still forwarded to the
+    // binary, it just cannot reach the shell as code.
     $local = fresh_local();
     $local->add_args('x$(touch ' . $m . ')', 'v');
     return $local->start_command();

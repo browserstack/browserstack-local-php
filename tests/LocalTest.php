@@ -65,8 +65,8 @@ class LocalTest extends \PHPUnit\Framework\TestCase {
   public function test_custom_keyval() {
     $this->bs_local->add_args("customKey1", "custom value1");
     $this->bs_local->add_args("customKey2", "custom value2");
-    $this->assertStringContainsString('-customKey1 \'custom value1\'',$this->bs_local->start_command());
-    $this->assertStringContainsString('-customKey2 \'custom value2\'',$this->bs_local->start_command());
+    $this->assertStringContainsString("'-customKey1' 'custom value1'",$this->bs_local->start_command());
+    $this->assertStringContainsString("'-customKey2' 'custom value2'",$this->bs_local->start_command());
   }
 
   public function test_set_proxy() {
@@ -182,26 +182,36 @@ class LocalTest extends \PHPUnit\Framework\TestCase {
     $this->assertFalse($running, 'a non-numeric pid must not be reported as running');
   }
 
-  public function test_rejects_an_injectable_argument_name() {
-    $marker = $this->marker('argkey');
-    $thrown = false;
-    try {
-      $this->bs_local->add_args('x$(touch ' . $marker . ')', 'v');
-    } catch (LocalException $e) {
-      $thrown = true;
-    }
-    $this->assertTrue($thrown, 'add_args() must reject an argument name that is not [A-Za-z0-9_-]+');
-    $this->assertNotExecuted($marker, 'add_args() with an injectable argument name');
+  public function test_no_injection_via_argument_name() {
+    // The argument NAME is interpolated into the command line as well, so it is
+    // its own shell sink. Quoting it is enough — the name is still forwarded to
+    // the binary, it just cannot reach the shell as code.
+    $marker = $this->marker('argname');
+    $this->bs_local->binary_path = '/bin/echo';
+    $this->bs_local->add_args('key', 'dummykey');
+    $this->bs_local->add_args('x$(touch ' . $marker . ')', 'v');
+    $command = $this->bs_local->start_command();
+    shell_exec($command . ' 2>&1');
+    $this->assertNotExecuted($marker, $command);
   }
 
-  public function test_argument_names_the_library_documents_are_still_accepted() {
-    // Regression guard on the argument-name gate: everything the README and the
-    // existing tests use must keep working, dashes included.
-    foreach (array('v', 'force', 'only', 'onlyAutomate', 'forcelocal', 'forceproxy',
-                   '-forceproxy', '-hosts', 'customKey1', 'custom_key_2', 'a1') as $name) {
+  public function test_unknown_argument_names_are_still_forwarded() {
+    // Deliberately NOT an allowlist: quoting closes the shell sink without
+    // changing behaviour, so every name the library already forwarded keeps
+    // working — dashes included — and nothing throws. Whether the binary should
+    // accept unknown flags is a separate (CWE-88) question.
+    foreach (array('customKey1', 'custom_key_2', 'a1', '-forceproxy', '-hosts',
+                   'weird.name', 'name with space') as $name) {
       $local = new Local();
-      $local->add_args($name, 'true');
-      $this->assertNotEmpty($local->start_command(), "argument name '$name' must stay usable");
+      $local->binary_path = '/bin/echo';
+      $local->add_args($name, 'somevalue');
+      $command = $local->start_command();
+      // The name reaches the binary as one argv element, quoted, never as code.
+      $this->assertStringContainsString(escapeshellarg("-$name"), $command,
+        "argument name '$name' must still be forwarded");
+      $argv = shell_exec($command . ' 2>&1');
+      $this->assertStringContainsString("-$name", $argv,
+        "the binary must still receive '-$name' verbatim");
     }
   }
 

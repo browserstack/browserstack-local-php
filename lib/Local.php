@@ -10,15 +10,6 @@ error_reporting(1);
 
 class Local {
 
-  /**
-   * Argument names are emitted as `-<name>` flags straight into the command
-   * line, so the name itself is an injection vector (CWE-78). Only these
-   * characters may reach the shell as a flag name; anything else is rejected
-   * by add_args() rather than quoted, because a quoted flag name would not be
-   * a flag any more.
-   */
-  const ARG_KEY_PATTERN = '/^[A-Za-z0-9_-]+$/';
-
   public $pid = NULL;
 
   /**
@@ -113,12 +104,6 @@ class Local {
   }
 
   public function add_args($arg_key, $value = NULL) {
-    if (!is_string($arg_key) || !preg_match(self::ARG_KEY_PATTERN, $arg_key))
-      throw new LocalException(
-        "Invalid BrowserStack Local argument name. Argument names may only " .
-        "contain letters, digits, '-' and '_'; got: " . var_export($arg_key, true)
-      );
-
     if ($arg_key == "key")
       $this->key = $value;
     elseif ($arg_key == "binaryPath")
@@ -154,10 +139,17 @@ class Local {
       $this->folder_path = $value;
     }
     elseif ($value !== NULL && strtolower((string) $value) == "true"){
-      array_push($this->user_args, "-$arg_key");
+      // The argument NAME is interpolated into the command line too, so it is a
+      // shell sink in its own right. Quoting it closes that without changing
+      // what the binary receives: the shell strips the quotes, so `-myFlag`
+      // still arrives as the argv element `-myFlag`. An unknown name keeps
+      // being forwarded to the binary exactly as before -- whether the binary
+      // should accept unknown flags at all is a separate question (CWE-88) and
+      // not this change's business.
+      array_push($this->user_args, self::esc("-$arg_key"));
     }
     else {
-      array_push($this->user_args, "-$arg_key " . self::esc($value));
+      array_push($this->user_args, self::esc("-$arg_key") . " " . self::esc($value));
     }
   }
 
