@@ -1,0 +1,42 @@
+name: PHP
+
+on:
+  pull_request:
+    branches: ["master", "main"]
+  push:
+    branches: ["master", "main"]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: lint + phpunit
+    runs-on: ubuntu-latest
+    # 7.4 rather than 8.x: lib/ sets properties dynamically, which PHP 8.2
+    # deprecates, and the library's own floor is php >= 5.3.19. phpunit 9.6
+    # supports 7.3+.
+    container: php:7.4-cli
+    steps:
+      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+
+      # Runs first and on its own: a syntax error must fail the build even if the
+      # suite cannot boot.
+      - name: Syntax check
+        run: |
+          for f in lib/*.php tests/*.php tests/manual/*.php; do
+            [ -e "$f" ] || continue
+            php -l "$f"
+          done
+
+      # git + unzip are not in the official php image, and Composer needs one of
+      # them to unpack downloaded packages (ext-zip is not built in either).
+      - name: Install dependencies
+        run: |
+          apt-get update -qq && apt-get install -y -qq --no-install-recommends git unzip >/dev/null
+          curl -sS https://getcomposer.org/installer | php
+          php composer.phar install --no-interaction --no-progress
+
+      # Excludes @group network — those tests reach badssl.com and the real S3 host.
+      - name: PHPUnit
+        run: ./vendor/bin/phpunit --exclude-group network

@@ -2,3 +2,4 @@ composer.phar
 vendor/**
 composer.lock
 local.log
+.phpunit.result.cache
