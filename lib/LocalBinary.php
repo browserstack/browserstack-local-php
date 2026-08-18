@@ -53,8 +53,11 @@ class LocalBinary {
   }
 
   private function platform_url(){
-    if (PHP_OS == "Darwin")
+    if (PHP_OS == "Darwin") {
+      if (in_array(php_uname('m'), array('arm64', 'aarch64')))
+        return 'https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal-darwin-arm64';
       return 'https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal-darwin-x64';
+    }
     else if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')
       return 'https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal.exe';
     if ((strtoupper(PHP_OS)) == "LINUX") {
