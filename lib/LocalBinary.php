@@ -69,7 +69,12 @@ class LocalBinary {
   }
 
   public function download_binary($path) {
-    $url = $this->platform_url();
+    $urls = array($this->platform_url());
+    // If the arm64 binary is not published to the legacy bucket yet, fall
+    // back to the x64 binary, which still works on Apple Silicon via
+    // Rosetta 2 — releasing must not turn a working download into a 404.
+    if (substr($urls[0], -13) === '-darwin-arm64')
+      $urls[] = str_replace('-darwin-arm64', '-darwin-x64', $urls[0]);
     if (!file_exists($path))
       mkdir($path, 0777, true);
 
@@ -79,18 +84,29 @@ class LocalBinary {
       $dest_binary_name = $dest_binary_name. ".exe";
     }
     $dest_binary_path = $path. '/'. $dest_binary_name;
-    $file = fopen($dest_binary_path , "w+");
-    $ch = curl_init("");
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($ch, CURLOPT_FILE, $file);
-    $data = curl_exec ($ch);
-    curl_close ($ch);
-    
-    fclose($file);
-    chmod($dest_binary_path, 0755);
-    return $dest_binary_path;
+    foreach ($urls as $url) {
+      $file = fopen($dest_binary_path , "w+");
+      $ch = curl_init("");
+      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+      curl_setopt($ch, CURLOPT_URL, $url);
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+      curl_setopt($ch, CURLOPT_FILE, $file);
+      // Fail on HTTP >= 400 instead of writing the error body to disk —
+      // a saved error body would satisfy the file_exists() check in
+      // binary_path() and stick until the user deletes it by hand.
+      curl_setopt($ch, CURLOPT_FAILONERROR, true);
+      $data = curl_exec ($ch);
+      curl_close ($ch);
+
+      fclose($file);
+      if ($data !== false) {
+        chmod($dest_binary_path, 0755);
+        return $dest_binary_path;
+      }
+      // remove the empty/partial file so the next attempt (or next run) retries
+      unlink($dest_binary_path);
+    }
+    throw new LocalException("Failed to download BrowserStackLocal binary from: " . implode(", ", $urls));
   }
 
   private function get_available_dirs() {
