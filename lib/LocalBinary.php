@@ -38,8 +38,8 @@ class LocalBinary {
       }
       // A cached file that is not a usable binary is discarded rather than
       // executed — it may be a stored error page or a partial download.
-      // nosemgrep: php.lang.security.unlink-use.unlink-use -- basename is fixed by dest_binary_name(), no user input in the path
-      unlink($binary_path);
+      // The path basename is fixed by dest_binary_name() under a fixed dir, no user input.
+      unlink($binary_path); // nosemgrep: php.lang.security.unlink-use.unlink-use
     }
     return $this->download_binary($dest_parent_dir);
   }
@@ -110,9 +110,9 @@ class LocalBinary {
         $last_error = $e->getMessage();
       }
       // Never leave an unverified file behind for a later run to pick up and execute.
-      // nosemgrep: php.lang.security.unlink-use.unlink-use -- basename is fixed by dest_binary_name(), no user input in the path
+      // The path basename is fixed by dest_binary_name() under a fixed dir, no user input.
       if (file_exists($dest_binary_path))
-        unlink($dest_binary_path);
+        unlink($dest_binary_path); // nosemgrep: php.lang.security.unlink-use.unlink-use
     }
 
     throw new LocalException("Error trying to download BrowserStack Local binary from " .
